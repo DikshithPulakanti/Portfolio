@@ -1,0 +1,189 @@
+.experience {
+  background: var(--bg-primary);
+}
+
+.experience-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.experience-item {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 3rem;
+  border: 1px solid var(--border-primary);
+  position: relative;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-sm);
+}
+
+.experience-item:hover {
+  border-color: var(--accent-blue);
+  background: var(--bg-card-hover);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.experience-icon {
+  position: absolute;
+  top: -1.5rem;
+  left: 3rem;
+  width: 3rem;
+  height: 3rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-blue);
+  font-size: 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.experience-item:hover .experience-icon {
+  background: var(--accent-blue);
+  color: var(--bg-primary);
+  border-color: var(--accent-blue);
+}
+
+.experience-content {
+  margin-top: 1rem;
+}
+
+.experience-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-secondary);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.experience-position {
+  font-size: 1.75rem;
+  color: var(--accent-blue);
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.02em;
+}
+
+.experience-company {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  margin: 0;
+}
+
+.experience-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.experience-location {
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.experience-period {
+  color: var(--accent-blue);
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: var(--bg-secondary);
+  padding: 0.375rem 0.875rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.experience-achievements h5 {
+  color: var(--text-primary);
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.achievements-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.achievement-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 1.25rem;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-secondary);
+  transition: all 0.2s ease;
+  flex-wrap: wrap;
+}
+
+.achievement-item:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-primary);
+  transform: translateX(4px);
+}
+
+.achievement-item::before {
+  content: '→';
+  color: var(--accent-blue);
+  font-weight: 600;
+  font-size: 1rem;
+  margin-right: 1rem;
+  flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.achievement-text {
+  color: var(--text-secondary);
+  font-weight: 400;
+  flex: 1;
+  line-height: 1.6;
+}
+
+.achievement-impact {
+  color: var(--accent-blue);
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .experience-item {
+    padding: 2rem 1.5rem;
+  }
+
+  .experience-icon {
+    left: 50%;
+    transform: translateX(-50%);
+    top: -1.5rem;
+  }
+
+  .experience-header {
+    flex-direction: column;
+  }
+
+  .experience-meta {
+    align-items: flex-start;
+  }
+
+  .experience-position {
+    font-size: 1.5rem;
+  }
+
+  .experience-company {
+    font-size: 1.125rem;
+  }
+}

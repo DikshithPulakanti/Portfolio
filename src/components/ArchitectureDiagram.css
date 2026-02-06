@@ -1,0 +1,161 @@
+.architecture-diagram {
+  margin: 2rem 0;
+  padding: 2rem;
+  background: var(--bg-card);
+  border-radius: 16px;
+  border: 1px solid var(--border-primary);
+  overflow-x: auto;
+}
+
+.diagram-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  min-height: 150px;
+}
+
+.diagram-step-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.diagram-step {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-box {
+  background: var(--bg-secondary);
+  border: 2px solid var(--accent-blue);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  min-width: 120px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.step-box:hover {
+  background: var(--bg-tertiary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.step-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.diagram-arrow {
+  color: var(--accent-blue);
+  display: flex;
+  align-items: center;
+}
+
+.arrow-path {
+  stroke: var(--accent-blue);
+}
+
+/* RAG Diagram Styles */
+.rag-diagram {
+  padding: 2rem;
+}
+
+.rag-flow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.rag-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.stage-box {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-primary);
+  border-radius: 12px;
+  padding: 1.25rem 2rem;
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.stage-box.input {
+  border-color: var(--accent-cyan);
+  background: rgba(6, 182, 212, 0.1);
+}
+
+.stage-box.llm {
+  border-color: var(--accent-purple);
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.stage-box.output {
+  border-color: var(--accent-green);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.stage-box:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.stage-arrow {
+  color: var(--accent-blue);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* Driver Behavior Diagram */
+.driver-diagram {
+  padding: 2rem;
+}
+
+.driver-flow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.driver-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .architecture-diagram {
+    padding: 1.5rem;
+  }
+
+  .diagram-flow {
+    flex-direction: column;
+  }
+
+  .diagram-arrow {
+    transform: rotate(90deg);
+  }
+
+  .step-box {
+    min-width: 100px;
+    padding: 0.75rem 1rem;
+  }
+}

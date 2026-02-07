@@ -14,49 +14,50 @@ const Hero = () => {
   return (
     <section id="home" className="hero">
       <div className="hero-container">
-        <motion.div
-          className="hero-content"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
+        <div className="hero-layout">
           <motion.div
-            className="hero-greeting"
-            initial={{ opacity: 0, y: 20 }}
+            className="hero-content"
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
+            transition={{ duration: 0.8 }}
           >
-            <span className="greeting-text">Hi, my name is</span>
-          </motion.div>
-          
-          <motion.h1
-            className="hero-name"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-          >
-            Dikshith Pulakanti
-          </motion.h1>
+            <motion.div
+              className="hero-greeting"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+            >
+              <span className="greeting-text">Hi, my name is</span>
+            </motion.div>
+            
+            <motion.h1
+              className="hero-name"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.8 }}
+            >
+              Dikshith Pulakanti
+            </motion.h1>
 
-          <motion.div
-            className="hero-title"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-          >
-            <span className="gradient-text">AI Engineer</span> & <span className="gradient-text">ML Researcher</span>
-          </motion.div>
+            <motion.div
+              className="hero-title"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.8 }}
+            >
+              <span className="gradient-text">AI Engineer</span> & <span className="gradient-text">ML Researcher</span>
+            </motion.div>
 
-          <motion.p
-            className="hero-description"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-          >
-            I build production AI systems, not notebook ML. Specialized in end-to-end ML pipelines, 
-            RAG architectures, and scalable solutions that solve real problems. 
-            <span className="hero-highlight"> Metrics-driven. Architecture-first. Production-ready.</span>
-          </motion.p>
+            <motion.p
+              className="hero-description"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.8 }}
+            >
+              I build production AI systems, not notebook ML. Specialized in end-to-end ML pipelines, 
+              RAG architectures, and scalable solutions that solve real problems. 
+              <span className="hero-highlight"> Metrics-driven. Architecture-first. Production-ready.</span>
+            </motion.p>
 
           <motion.div
             className="hero-buttons"
@@ -112,7 +113,27 @@ const Hero = () => {
               <FaPhone />
             </motion.a>
           </motion.div>
-        </motion.div>
+          </motion.div>
+
+          <motion.div
+            className="hero-photo-container"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.6, duration: 0.8 }}
+          >
+            <div className="hero-photo-wrapper">
+              <img 
+                src="/assets/professional-photo.png" 
+                alt="Dikshith Pulakanti - AI Engineer & ML Researcher" 
+                className="hero-photo"
+                loading="eager"
+                width="400"
+                height="500"
+              />
+              <div className="hero-photo-glow"></div>
+            </div>
+          </motion.div>
+        </div>
 
         <motion.div
           className="hero-scroll"

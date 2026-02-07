@@ -16,9 +16,63 @@
   z-index: 1;
 }
 
+.hero-layout {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 4rem;
+  align-items: center;
+}
+
 .hero-content {
   text-align: left;
-  max-width: 900px;
+  max-width: 700px;
+}
+
+.hero-photo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-photo-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+}
+
+.hero-photo {
+  width: 100%;
+  height: auto;
+  border-radius: 20px;
+  object-fit: cover;
+  border: 2px solid var(--border-primary);
+  box-shadow: var(--shadow-xl);
+  transition: all 0.4s ease;
+  background: var(--bg-secondary);
+}
+
+.hero-photo:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.4);
+  border-color: var(--accent-blue);
+}
+
+.hero-photo-glow {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(139, 92, 246, 0.3));
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: -1;
+  filter: blur(10px);
+}
+
+.hero-photo-wrapper:hover .hero-photo-glow {
+  opacity: 1;
 }
 
 .hero-greeting {
@@ -161,6 +215,22 @@
   color: var(--text-secondary);
 }
 
+@media (max-width: 968px) {
+  .hero-layout {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .hero-photo-container {
+    order: -1;
+  }
+
+  .hero-photo-wrapper {
+    max-width: 300px;
+    margin: 0 auto;
+  }
+}
+
 @media (max-width: 768px) {
   .hero-content {
     text-align: center;
@@ -190,5 +260,9 @@
 
   .hero-social {
     justify-content: center;
+  }
+
+  .hero-photo-wrapper {
+    max-width: 260px;
   }
 }

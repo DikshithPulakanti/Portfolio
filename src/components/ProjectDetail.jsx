@@ -1,4 +1,5 @@
 import { useParams, Link } from 'react-router-dom'
+import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { FaArrowLeft, FaCheckCircle } from 'react-icons/fa'
 import { getProjectBySlug } from '../data/projects'
@@ -8,6 +9,11 @@ import './ProjectDetail.css'
 const ProjectDetail = () => {
   const { slug } = useParams()
   const project = getProjectBySlug(slug)
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [slug])
 
   if (!project) {
     return (

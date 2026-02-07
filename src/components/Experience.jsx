@@ -91,6 +91,13 @@ const Experience = () => {
                   </motion.li>
                 ))}
               </ul>
+              <div className="engineering-signals">
+                <span className="signal-tag">🐳 Docker</span>
+                <span className="signal-tag">☸️ Kubernetes</span>
+                <span className="signal-tag">🔌 REST APIs</span>
+                <span className="signal-tag">📈 MLflow</span>
+                <span className="signal-tag">☁️ AWS/Azure</span>
+              </div>
             </div>
           </div>
         </motion.div>

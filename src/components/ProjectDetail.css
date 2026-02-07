@@ -292,6 +292,18 @@
   padding-bottom: 0;
 }
 
+.tradeoff-section.production {
+  background: var(--bg-secondary);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-primary);
+  margin-top: 1rem;
+}
+
+.production-title {
+  color: var(--accent-blue) !important;
+}
+
 .tradeoff-title {
   font-size: 1.125rem;
   font-weight: 600;

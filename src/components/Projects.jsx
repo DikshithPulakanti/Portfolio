@@ -68,6 +68,10 @@ const Projects = () => {
                   <span key={idx} className="highlight-badge">{highlight}</span>
                 ))}
               </div>
+              <div className="project-signals">
+                <span className="signal-badge">🚀 Production Ready</span>
+                <span className="signal-badge">📊 Metrics Driven</span>
+              </div>
               <Link to={`/projects/${project.slug}`} className="project-view-btn">
                 View Details <FaExternalLinkAlt />
               </Link>

@@ -21,11 +21,9 @@ const Navbar = ({ activeSection }) => {
 
   const navItems = [
     { id: 'home', label: 'Home', path: '/' },
-    { id: 'about', label: 'About', path: '/#about' },
-    { id: 'education', label: 'Education', path: '/#education' },
-    { id: 'experience', label: 'Experience', path: '/#experience' },
     { id: 'projects', label: 'Projects', path: '/#projects' },
-    { id: 'skills', label: 'Skills', path: '/#skills' },
+    { id: 'decision-log', label: 'Decisions', path: '/decision-log' },
+    { id: 'benchmarks', label: 'Benchmarks', path: '/benchmarks' },
     { id: 'contact', label: 'Contact', path: '/#contact' },
   ]
 
@@ -45,8 +43,9 @@ const Navbar = ({ activeSection }) => {
   const handleNavClick = (item) => {
     if (item.path.startsWith('/#')) {
       scrollToSection(item.id)
-    } else {
+    } else if (item.path.startsWith('/')) {
       setIsMobileMenuOpen(false)
+      // Navigation will be handled by React Router
     }
   }
 
@@ -69,17 +68,32 @@ const Navbar = ({ activeSection }) => {
         </Link>
 
         <div className={`navbar-menu ${isMobileMenuOpen ? 'active' : ''}`}>
-          {navItems.map((item) => (
-            <motion.button
-              key={item.id}
-              className={`navbar-link ${activeSection === item.id ? 'active' : ''}`}
-              onClick={() => handleNavClick(item)}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              {item.label}
-            </motion.button>
-          ))}
+          {navItems.map((item) => {
+            if (item.path.startsWith('/#')) {
+              return (
+                <motion.button
+                  key={item.id}
+                  className={`navbar-link ${activeSection === item.id ? 'active' : ''}`}
+                  onClick={() => handleNavClick(item)}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {item.label}
+                </motion.button>
+              )
+            } else {
+              return (
+                <Link
+                  key={item.id}
+                  to={item.path}
+                  className={`navbar-link ${location.pathname === item.path ? 'active' : ''}`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              )
+            }
+          })}
         </div>
 
         <div className="navbar-actions">

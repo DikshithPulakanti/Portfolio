@@ -10,6 +10,11 @@ import Projects from './components/Projects'
 import Skills from './components/Skills'
 import Contact from './components/Contact'
 import ProjectDetail from './components/ProjectDetail'
+import Footer from './components/Footer'
+import Status from './components/Status'
+import Changelog from './components/Changelog'
+import DecisionLog from './components/DecisionLog'
+import Benchmarks from './components/Benchmarks'
 import './App.css'
 
 function AppContent() {
@@ -53,9 +58,14 @@ function AppContent() {
             <Projects />
             <Skills />
             <Contact />
+            <Footer />
           </main>
         } />
-        <Route path="/projects/:slug" element={<ProjectDetail />} />
+        <Route path="/projects/:slug" element={<><ProjectDetail /><Footer /></>} />
+        <Route path="/status" element={<><Status /><Footer /></>} />
+        <Route path="/changelog" element={<><Changelog /><Footer /></>} />
+        <Route path="/decision-log" element={<><DecisionLog /><Footer /></>} />
+        <Route path="/benchmarks" element={<><Benchmarks /><Footer /></>} />
       </Routes>
     </div>
   )

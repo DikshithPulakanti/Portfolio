@@ -53,8 +53,9 @@ const Hero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
           >
-            Building intelligent systems with Machine Learning, Deep Learning, and Data Science.
-            Specialized in end-to-end ML pipelines, generative models, and scalable solutions.
+            I build production AI systems, not notebook ML. Specialized in end-to-end ML pipelines, 
+            RAG architectures, and scalable solutions that solve real problems. 
+            <span className="hero-highlight"> Metrics-driven. Architecture-first. Production-ready.</span>
           </motion.p>
 
           <motion.div

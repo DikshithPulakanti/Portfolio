@@ -111,7 +111,12 @@ const Contact = () => {
           className="contact-footer"
           variants={itemVariants}
         >
-          <p>Let's build something amazing together!</p>
+          <p className="contact-footer-text">Let's build something amazing together!</p>
+          <div className="contact-signals">
+            <span className="signal-item">✅ Production AI Systems</span>
+            <span className="signal-item">📊 Metrics-Driven Development</span>
+            <span className="signal-item">🏗️ Architecture-First Thinking</span>
+          </div>
         </motion.div>
       </motion.div>
     </section>

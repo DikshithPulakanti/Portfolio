@@ -62,6 +62,8 @@
   transition: all 0.2s ease;
   font-family: inherit;
   border-radius: 6px;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .navbar-link:hover {

@@ -2,7 +2,7 @@ import { useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { FaArrowLeft, FaCheckCircle } from 'react-icons/fa'
 import { getProjectBySlug } from '../data/projects'
-import ArchitectureDiagram from './ArchitectureDiagram'
+import ArchitectureExplorer from './ArchitectureExplorer'
 import './ProjectDetail.css'
 
 const ProjectDetail = () => {
@@ -86,18 +86,7 @@ const ProjectDetail = () => {
             <h2 className="section-heading">2. Architecture</h2>
             <div className="section-content">
               <p className="section-text">{project.architecture.description}</p>
-              <ArchitectureDiagram flow={project.architecture.flow} diagramType={project.architecture.diagram} />
-              <div className="flow-steps">
-                {project.architecture.flow.map((step, idx) => (
-                  <div key={idx} className="flow-step">
-                    <div className="flow-step-number">{idx + 1}</div>
-                    <div className="flow-step-content">
-                      <h4 className="flow-step-title">{step.step}</h4>
-                      <p className="flow-step-description">{step.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <ArchitectureExplorer flow={project.architecture.flow} title={`${project.title} - Architecture`} />
             </div>
           </motion.section>
 
@@ -140,10 +129,10 @@ const ProjectDetail = () => {
 
           {/* Tradeoffs Section */}
           <motion.section className="project-section" variants={itemVariants}>
-            <h2 className="section-heading">5. Tradeoffs</h2>
+            <h2 className="section-heading">5. Tradeoffs & Production Considerations</h2>
             <div className="section-content">
               <p className="section-text">
-                Honest reflection on what didn't work and what would be improved with more time:
+                Honest reflection on what didn't work, what would be improved with more time, and production considerations:
               </p>
               <div className="tradeoffs-list">
                 {project.tradeoffs.map((tradeoff, idx) => (
@@ -155,6 +144,10 @@ const ProjectDetail = () => {
                     <div className="tradeoff-section">
                       <h3 className="tradeoff-title">What would change:</h3>
                       <p className="tradeoff-text">{tradeoff.whatWouldChange}</p>
+                    </div>
+                    <div className="tradeoff-section production">
+                      <h3 className="tradeoff-title production-title">Production Considerations:</h3>
+                      <p className="tradeoff-text">{tradeoff.productionConsideration || 'Would optimize for scale, monitoring, and cost efficiency in production deployment.'}</p>
                     </div>
                   </div>
                 ))}

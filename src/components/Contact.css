@@ -91,7 +91,7 @@
   border-top: 1px solid var(--border-primary);
 }
 
-.contact-footer p {
+.contact-footer-text {
   font-size: 1.25rem;
   font-weight: 600;
   background: var(--gradient-primary);
@@ -99,6 +99,24 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
   letter-spacing: -0.02em;
+  margin-bottom: 2rem;
+}
+
+.contact-signals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.signal-item {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  padding: 0.5rem 1rem;
+  background: var(--bg-card);
+  border-radius: 6px;
+  border: 1px solid var(--border-primary);
 }
 
 @media (max-width: 768px) {

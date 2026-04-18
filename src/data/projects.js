@@ -567,6 +567,121 @@ export const projects = [
       }
     ]
   }
+  ,
+  {
+    id: 'apex',
+    title: 'APEX — Autonomous Research Scientist',
+    slug: 'apex',
+    technologies: ['LangGraph', 'Claude API', 'Neo4j + GDS', 'Weaviate', 'Kafka', 'PostgreSQL', 'Redis', 'Next.js 14', 'FastAPI', 'Hugging Face', 'aiohttp', 'Docker', 'MLflow', 'arXiv API'],
+    description: 'A multi-agent research scientist that autonomously mines arXiv papers, maps knowledge gaps in a Neo4j graph, debates hypotheses through adversarial agent dialogue, and drafts patent-style documents — wired through 4 custom MCP servers and Kafka for full observability.',
+    highlights: ['Multi-Agent Research Pipeline', 'Knowledge Graph (Neo4j + GDS)', 'Adversarial Hypothesis Debate', 'Custom BERT (HypothesisValidityBERT)', 'Kafka Event Bus', 'Patent Drafting Agent'],
+    problem: {
+      title: 'The Problem',
+      description: 'Scientific research moves faster than any human researcher can track. Thousands of papers are published on arXiv every week, and the most valuable insights — gaps between fields, untested hypotheses, patentable combinations of existing ideas — are invisible to anyone reading papers one by one. No tool automates the full loop: ingest → structure → reason → validate → draft.',
+      existingSolutions: [
+        'Semantic Scholar / connected papers show citation graphs but don\'t reason about gaps or generate hypotheses',
+        'LLM-based summarizers read papers but can\'t cross-reference a structured knowledge graph of 780+ concepts',
+        'Patent tools require human-written claims — no system autonomously identifies novelty from a research corpus',
+        'Research assistants like Elicit answer questions but don\'t run an adversarial debate to stress-test a hypothesis before committing to it'
+      ]
+    },
+    architecture: {
+      title: 'Architecture',
+      description: 'A five-layer system: arXiv scrapers feed a multi-database knowledge layer (Neo4j + Weaviate + PostgreSQL + Redis), four LangGraph agents communicate exclusively through four custom MCP servers, Kafka streams every event to the Next.js dashboard for live observability. One command triggers the full hypothesis-to-patent pipeline in ~55 seconds.',
+      flow: [
+        {
+          step: 'arXiv Ingestion',
+          description: 'Async aiohttp scraper queries arXiv export API across 20 APEX_QUERIES covering cs.AI, cs.LG, cs.CL, GNN+drug discovery, LLM+biology and more. Rate-limited to 0.5 req/s in pipeline mode. Papers are deduplicated via Redis ("already processed" ID cache) before any downstream work.',
+          technologies: ['aiohttp', 'arXiv API', 'Redis', 'XML parsing'],
+          metrics: ['20 domain queries', '0.5 req/s rate limit', '100+ papers ingested', 'Redis dedup cache']
+        },
+        {
+          step: 'Knowledge Graph Build',
+          description: 'Papers, authors, and extracted concepts are batch-upserted into Neo4j with GDS (Graph Data Science) plugins. Concepts are embedded with all-MiniLM-L6-v2 and loaded into Weaviate for vector search. Pipeline run metadata is logged to PostgreSQL. Result: 368 authors, 780 concepts, 3984 relationships.',
+          technologies: ['Neo4j + GDS', 'Weaviate', 'PostgreSQL', 'sentence-transformers (MiniLM)'],
+          metrics: ['780 concepts', '368 authors', '3984 relationships', 'Vector + graph dual retrieval']
+        },
+        {
+          step: '4 Custom MCP Servers',
+          description: 'Agents access all data exclusively through four stdio MCP servers: paper-mcp (search papers, concept neighbors, papers-by-year), graph-mcp (find gaps, create hypothesis, top concepts, list hypotheses), sim-mcp (simulation, synthetic data, validation), patent-mcp (draft patent, prior art, novelty score). Clean contract between agent logic and data layer.',
+          technologies: ['MCP Protocol', 'Anthropic SDK', 'Neo4j driver', 'Weaviate client'],
+          metrics: ['4 servers', 'stdio MCP protocol', 'Full data layer abstraction']
+        },
+        {
+          step: '4 LangGraph Agents',
+          description: 'Harvester ingests and structures papers. Reasoner finds gaps in the knowledge graph and generates hypotheses. Skeptic runs adversarial debate — challenges every hypothesis with counter-evidence from the graph. Inventor takes validated hypotheses and drafts patent-style documents with prior art and novelty scores.',
+          technologies: ['LangGraph', 'Claude API', 'StateGraph', 'Conditional edges'],
+          metrics: ['4 specialized agents', 'Adversarial debate loop', '~55s end-to-end', '6 hypotheses generated']
+        },
+        {
+          step: 'HypothesisValidityBERT',
+          description: 'Custom fine-tuned BERT model that classifies whether a hypothesis is valid or invalid based on supporting evidence. Trained on synthetic dataset generated from the knowledge graph, tracked with MLflow, published on HuggingFace: DikshithPulakanti/HypothesisValidityBERT. Used by the Skeptic agent as a fast first-pass before invoking Claude.',
+          technologies: ['BERT', 'Hugging Face', 'MLflow', 'DVC', 'Synthetic data generation'],
+          metrics: ['~98% F1 score', 'HuggingFace deployed', 'MLflow experiment tracking']
+        },
+        {
+          step: 'Kafka Event Bus',
+          description: 'Every agent action publishes to a Kafka topic: papers.ingested, hypothesis.created, hypothesis.validated, hypothesis.rejected, patent.drafted, agent.status. This gives full observability into the pipeline without tight coupling between agents. Zookeeper + Confluent Kafka 7.5 in Docker.',
+          technologies: ['Kafka', 'Zookeeper', 'Confluent 7.5', 'Docker'],
+          metrics: ['6 event topics', 'Full agent observability', 'Decoupled architecture']
+        },
+        {
+          step: 'Next.js Dashboard',
+          description: 'App Router dashboard fetches /api/stats, /api/hypotheses, and /api/events in parallel from FastAPI. Neo4j Cypher queries power counts, hypothesis lists, and event feeds. graph.tsx renders the live knowledge graph visualization. Real-time agent status updates stream via SSE.',
+          technologies: ['Next.js 14', 'Neo4j driver', 'Cypher', 'Tailwind CSS'],
+          metrics: ['Live knowledge graph viz', 'Real-time agent status', 'Hypothesis + patent tracker']
+        }
+      ],
+      diagram: 'apex'
+    },
+    techDecisions: [
+      {
+        decision: 'Why Neo4j + GDS over a relational DB for the knowledge graph?',
+        reasoning: 'Research knowledge is fundamentally a graph: papers cite papers, authors co-author, concepts co-occur. Finding "gaps" — pairs of concepts that should be connected but aren\'t — is a graph traversal problem. In SQL, this requires multi-level self-joins that become exponentially slow as the graph grows. Neo4j\'s Cypher expresses "find all concept pairs with no connecting hypothesis" naturally. GDS adds graph analytics (centrality, community detection, path finding) that would require separate libraries in a relational setup. The combination gives us both structural queries and analytical algorithms on the same data.'
+      },
+      {
+        decision: 'Why dual retrieval — Neo4j + Weaviate — instead of just one?',
+        reasoning: 'Neo4j excels at structural/relational queries: "which concepts are neighbors of X?", "which papers share authors with Y?", "what hypotheses exist between concept A and B?". Weaviate handles semantic similarity: "find papers conceptually similar to this hypothesis". These are different retrieval modes — graph traversal vs vector proximity. Using only Neo4j would miss semantic neighbors with different terminology. Using only Weaviate would lose the structural relationships (citation chains, author networks, concept co-occurrence counts) that make gap detection possible.'
+      },
+      {
+        decision: 'Why Kafka instead of direct agent-to-agent calls or a simple event queue?',
+        reasoning: 'Kafka gives us persistent, replayable event logs — critical for a research pipeline where you want to audit exactly what every agent did and when. Direct calls between agents create tight coupling (Reasoner must know about Skeptic\'s API). A simple in-memory queue (like asyncio.Queue) loses events on restart. Kafka topics (papers.ingested, hypothesis.validated, etc.) give each pipeline stage its own observable stream. This also means the dashboard can subscribe independently without the agents needing to know about the frontend.'
+      },
+      {
+        decision: 'Why train HypothesisValidityBERT instead of always using Claude?',
+        reasoning: 'The Skeptic agent needs to evaluate potentially dozens of hypotheses per run. Using Claude for every evaluation would cost ~$0.01 per hypothesis — at scale across thousands of hypotheses, this becomes significant. HypothesisValidityBERT runs locally in ~20ms vs ~800ms for a Claude API call. It serves as a fast first-pass filter: hypotheses that fail the BERT classifier (low confidence) are skipped or queued for human review; only borderline cases escalate to Claude for nuanced analysis. This tiered approach reduces Claude API cost by ~80% while maintaining quality.'
+      },
+      {
+        decision: 'Why adversarial debate (Reasoner + Skeptic) instead of a single reasoning agent?',
+        reasoning: 'Single-agent hypothesis generation suffers from confirmation bias — the same model that generated the hypothesis tends to validate it. The adversarial architecture forces hypothesis quality through conflict: Reasoner generates the hypothesis using graph gaps, Skeptic is explicitly prompted to find counter-evidence and weaknesses, and only hypotheses that survive the Skeptic\'s challenge advance to the Inventor. This mirrors peer review in science. The approach measurably improves hypothesis quality vs a single agent asked to "critically evaluate your own hypothesis".'
+      }
+    ],
+    metrics: [
+      { metric: 'Knowledge Graph Scale', value: '780 concepts, 3984 relationships', improvement: 'From 100+ arXiv papers' },
+      { metric: 'HypothesisValidityBERT', value: '~98% F1', improvement: 'On held-out validation set' },
+      { metric: 'End-to-End Pipeline', value: '~55 seconds', improvement: 'Hypothesis → patent draft (data pre-loaded)' },
+      { metric: 'arXiv Coverage', value: '20 domain queries', improvement: 'cs.AI, cs.LG, cs.CL + cross-domain (GNN+biology, LLM+drug discovery)' },
+      { metric: 'Hypotheses Generated', value: '6 validated hypotheses', improvement: '2 advanced to patent drafts' },
+      { metric: 'Agent Observability', value: '6 Kafka topics', improvement: 'Full pipeline audit trail, replayable' }
+    ],
+    tradeoffs: [
+      {
+        whatDidntWork: 'First version of the Skeptic agent was prompted with "evaluate this hypothesis critically" — but it was using the same Claude model that generated the hypothesis, with no structural separation. The Skeptic consistently agreed with the Reasoner, making the debate loop pointless. Had to separate the agents with different system prompts, different context windows (Skeptic gets only the hypothesis + graph evidence, not the Reasoner\'s chain of thought), and different temperature settings.',
+        whatWouldChange: 'Would implement a proper adversarial training setup: generate a dataset of hypothesis-counterargument pairs, fine-tune a dedicated Skeptic model rather than relying on prompt engineering alone. Would also add a "debate round limit" — currently the agents can loop indefinitely if no consensus is reached. A maximum of 3 debate rounds with forced escalation to human review prevents infinite loops.',
+        productionConsideration: 'Production would need a human-in-the-loop step before patent drafting — the Inventor\'s output is good enough for prior art search and novelty scoring, but not for actual patent filing without expert review. Would integrate with USPTO patent search API for real prior art validation, implement versioned hypothesis storage (hypotheses evolve across debate rounds), and add a "confidence calibration" layer so the system knows when to defer to human judgment.'
+      },
+      {
+        whatDidntWork: 'arXiv rate limiting caused silent failures in early versions. The standalone scraper defaulted to 3.0 req/s, which got the IP temporarily blocked by the export API. Batch runs would silently return empty results after the first few hundred papers — no error, just nothing. Only discovered the issue by checking Redis and noticing the processed-paper count stopped growing.',
+        whatWouldChange: 'Would implement explicit HTTP 429 detection with exponential backoff rather than a fixed rate limit. Would also add scraping health monitoring (papers-per-minute metric to Kafka) so rate limit issues surface immediately in the dashboard instead of silently corrupting the dataset. For production scale, would distribute scraping across multiple IPs/proxies with proper attribution.',
+        productionConsideration: 'Production ingestion would use the official Semantic Scholar API (which has higher rate limits and better structured data than the arXiv export API) as the primary source, with arXiv as a fallback. Would add incremental ingestion (only new papers since last run via date filtering) rather than re-scraping the full corpus each time. Would also implement paper deduplication by DOI across multiple sources, not just by arXiv ID.'
+      },
+      {
+        whatDidntWork: 'The docker-compose setup with 7 services (Neo4j, Weaviate, Postgres, Redis, Kafka, Zookeeper, app) had startup ordering issues — the app container would start before Neo4j was ready to accept connections, causing the pipeline to fail on first run. The Dockerfile CMD points to main.py which only verifies environment, not the actual LangGraph pipeline, so this was a silent issue for new contributors.',
+        whatWouldChange: 'Would add explicit health checks and depends_on conditions in docker-compose so the app container waits for all DBs to be healthy before starting. Would also replace main.py as the Dockerfile entrypoint with a proper init script that runs schema migrations, seeds the Agent nodes, and confirms connectivity to all services before declaring the container ready. The current requirements.txt (only python-dotenv) is also misleading — would add a full pinned requirements.txt generated from the actual runtime.',
+        productionConsideration: 'Production would deploy on Kubernetes with separate deployments for the agent workers and the API server, using init containers for DB readiness checks. Would migrate from docker-compose Kafka to AWS MSK (managed Kafka) to avoid operational overhead. Would use AWS Neptune or AuraDB (managed Neo4j) instead of self-hosted Neo4j to eliminate the GDS plugin management burden.'
+      }
+    ]
+  }
 ]
 
 export const getProjectBySlug = (slug) => {

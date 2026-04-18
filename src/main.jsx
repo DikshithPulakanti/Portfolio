@@ -4,7 +4,7 @@ import App from './App.jsx'
 import './index.css'
 
 // Set initial theme
-document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'dark')
+document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light')
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

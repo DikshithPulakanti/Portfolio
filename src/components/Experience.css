@@ -185,6 +185,64 @@
   color: var(--accent-blue);
 }
 
+.experience-proof {
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.proof-badge {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.proof-rating {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.proof-programme {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.lor-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  background: transparent;
+  border: 1px solid var(--accent-primary);
+  color: var(--accent-primary);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.lor-btn:hover {
+  background: var(--accent-primary);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.lor-btn-icon {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
 @media (max-width: 768px) {
   .experience-item {
     padding: 2rem 1.5rem;

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { FaBriefcase } from 'react-icons/fa'
+import { FaBriefcase, FaFilePdf, FaExternalLinkAlt } from 'react-icons/fa'
 import './Experience.css'
 
 const Experience = () => {
@@ -101,6 +101,23 @@ const Experience = () => {
                 <span className="signal-tag">🤖 Azure ML Studio</span>
                 <span className="signal-tag">🐍 Python</span>
                 <span className="signal-tag">📊 Pandas / Matplotlib</span>
+              </div>
+
+              <div className="experience-proof">
+                <div className="proof-badge">
+                  <span className="proof-rating">⭐ Performance Rating: Very Good</span>
+                  <span className="proof-programme">HPE Global Academic Internship Programme (GAIP)</span>
+                </div>
+                <a
+                  href="/assets/hpe-lor.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="lor-btn"
+                >
+                  <FaFilePdf />
+                  View Letter of Recommendation
+                  <FaExternalLinkAlt className="lor-btn-icon" />
+                </a>
               </div>
             </div>
           </div>

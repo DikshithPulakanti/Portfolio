@@ -4,26 +4,30 @@ import './Experience.css'
 
 const Experience = () => {
   const experience = {
-    company: 'National University of Singapore - Hewlett Packard (HP)',
-    location: 'Singapore',
-    position: 'Data Science Intern - AI/ML',
-    period: 'June 2022 – August 2022',
+    company: 'Hewlett Packard Enterprise (HPE)',
+    location: 'Singapore · On-site',
+    position: 'Deep Learning Intern',
+    period: 'Jun 2022 – Jul 2022',
     achievements: [
       {
-        text: 'Built LLM-based RAG pipelines with LangChain, Hugging Face, FAISS',
-        impact: 'improving retrieval accuracy by 25%'
+        text: 'Received extensive training in Cloud computing services',
+        impact: 'primarily Microsoft Azure'
       },
       {
-        text: 'Optimized CNNs for vision tasks using TensorFlow/Keras, PyTorch',
-        impact: 'boosting image classification accuracy by 18%'
+        text: 'Utilized Microsoft Azure Machine Learning Studio to annotate and label images',
+        impact: 'for production ML model training'
       },
       {
-        text: 'Deployed scalable production ML models in Docker on EC2 & Azure ML',
-        impact: 'cutting setup time by 40%'
+        text: 'Built and deployed machine learning models',
+        impact: 'in a production environment'
       },
       {
-        text: 'Engineered SQL (PostgreSQL/MySQL) & NoSQL (MongoDB, Spark) pipelines',
-        impact: 'reducing preprocessing latency by 30%'
+        text: 'Built and deployed a serverless application on Microsoft Azure Functions using Python',
+        impact: 'to execute ML models on demand'
+      },
+      {
+        text: 'Conducted data analysis and visualization on Microsoft Azure',
+        impact: 'using Pandas and Matplotlib'
       }
     ]
   }
@@ -92,11 +96,11 @@ const Experience = () => {
                 ))}
               </ul>
               <div className="engineering-signals">
-                <span className="signal-tag">🐳 Docker</span>
-                <span className="signal-tag">☸️ Kubernetes</span>
-                <span className="signal-tag">🔌 REST APIs</span>
-                <span className="signal-tag">📈 MLflow</span>
-                <span className="signal-tag">☁️ AWS/Azure</span>
+                <span className="signal-tag">☁️ Microsoft Azure</span>
+                <span className="signal-tag">⚡ Azure Functions</span>
+                <span className="signal-tag">🤖 Azure ML Studio</span>
+                <span className="signal-tag">🐍 Python</span>
+                <span className="signal-tag">📊 Pandas / Matplotlib</span>
               </div>
             </div>
           </div>

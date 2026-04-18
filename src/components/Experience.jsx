@@ -9,26 +9,11 @@ const Experience = () => {
     position: 'Deep Learning Intern',
     period: 'Jun 2022 – Jul 2022',
     achievements: [
-      {
-        text: 'Received extensive training in Cloud computing services',
-        impact: 'primarily Microsoft Azure'
-      },
-      {
-        text: 'Utilized Microsoft Azure Machine Learning Studio to annotate and label images',
-        impact: 'for production ML model training'
-      },
-      {
-        text: 'Built and deployed machine learning models',
-        impact: 'in a production environment'
-      },
-      {
-        text: 'Built and deployed a serverless application on Microsoft Azure Functions using Python',
-        impact: 'to execute ML models on demand'
-      },
-      {
-        text: 'Conducted data analysis and visualization on Microsoft Azure',
-        impact: 'using Pandas and Matplotlib'
-      }
+      'Received extensive training in Cloud computing services, primarily Microsoft Azure',
+      'Utilized Microsoft Azure Machine Learning Studio to annotate and label images for production ML model training',
+      'Built and deployed machine learning models in a production environment',
+      'Built and deployed a serverless application on Microsoft Azure Functions using Python to execute ML models on demand',
+      'Conducted data analysis and visualization on Microsoft Azure using Pandas and Matplotlib'
     ]
   }
 
@@ -90,8 +75,7 @@ const Experience = () => {
                     className="achievement-item"
                     variants={itemVariants}
                   >
-                    <span className="achievement-text">{achievement.text}</span>
-                    <span className="achievement-impact">, {achievement.impact}</span>
+                    <span className="achievement-text">{achievement}</span>
                   </motion.li>
                 ))}
               </ul>

@@ -5,10 +5,7 @@ import { projects } from '../data/projects'
 import './Projects.css'
 
 const Projects = () => {
-  // Filter to show only the 3 main projects
-  const displayedProjects = projects.filter(p => 
-    ['movie-semantic-search', 'rag-chatbot', 'driver-behavior-analysis'].includes(p.slug)
-  )
+  const displayedProjects = projects
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -52,7 +49,7 @@ const Projects = () => {
               variants={itemVariants}
               whileHover={{ y: -10 }}
             >
-              <div className="project-number">0{index + 1}</div>
+              <div className="project-number">{String(index + 1).padStart(2, '0')}</div>
               <h3 className="project-title">{project.title}</h3>
               <p className="project-description">{project.description}</p>
               <div className="project-technologies">

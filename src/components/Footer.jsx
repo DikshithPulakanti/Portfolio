@@ -18,7 +18,7 @@ const Footer = () => {
           </div>
           <div className="footer-version">
             <span className="version-text">Portfolio v{version}</span>
-            <span className="separator">—</span>
+            <span className="separator">·</span>
             <span className="update-text">Last updated {lastUpdated}</span>
           </div>
         </div>

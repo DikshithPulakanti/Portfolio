@@ -54,7 +54,7 @@ const Hero = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.8 }}
             >
-              I'm an AI engineer focused on building systems that work in the real world. I spend most of my time on end-to-end ML pipelines and RAG architectures — basically taking ideas from research and turning them into things that scale and ship. Always more interested in the problem than the hype around it.
+              I'm an AI engineer focused on building systems that work in the real world. I spend most of my time on end-to-end ML pipelines and RAG architectures, basically taking ideas from research and turning them into things that scale and ship. Always more interested in the problem than the hype around it.
             </motion.p>
 
           <motion.div

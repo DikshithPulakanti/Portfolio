@@ -1,7 +1,7 @@
 export const projects = [
   {
     "id": "foresight",
-    "title": "Foresight — Proactive AI Financial OS",
+    "title": "Foresight: Proactive AI Financial OS",
     "slug": "foresight",
     "technologies": [
       "LangGraph",
@@ -21,7 +21,7 @@ export const projects = [
       "GitHub Actions",
       "Hugging Face"
     ],
-    "description": "A proactive AI financial operating system with 12 specialized LangGraph agents and 6 custom MCP servers that predicts cashflow, detects anomalies, and delivers weekly audio financial briefings — before problems cost you money.",
+    "description": "A proactive AI financial operating system with 12 specialized LangGraph agents and 6 custom MCP servers that predicts cashflow, detects anomalies, and delivers weekly audio financial briefings, catching problems before they cost you money.",
     "highlights": [
       "Multi-Agent Architecture",
       "Custom MCP Servers",
@@ -32,9 +32,9 @@ export const projects = [
     ],
     "problem": {
       "title": "The Problem",
-      "description": "Personal finance tools are reactive — they show you what happened after it already hurt you. Overdraft fees, forgotten subscriptions, and missed bills cost people thousands per year because no system proactively monitors, predicts, and alerts before problems occur.",
+      "description": "Personal finance tools are reactive. They show you what happened after it already hurt you. Overdraft fees, forgotten subscriptions, and missed bills cost people thousands per year because no system proactively monitors, predicts, and alerts before problems occur.",
       "existingSolutions": [
-        "Mint/YNAB only show historical data — no prediction or proactive alerts",
+        "Mint/YNAB only show historical data, with no prediction or proactive alerts",
         "Bank alerts are threshold-based and miss subtle anomalies (duplicate charges, creeping subscriptions)",
         "No existing tool scans your inbox for upcoming renewals before they charge",
         "Zero tools deliver personalized audio briefings with forward-looking cashflow forecasts"
@@ -42,7 +42,7 @@ export const projects = [
     },
     "architecture": {
       "title": "Architecture",
-      "description": "12 LangGraph agents communicate exclusively through 6 custom MCP servers (Anthropic's Model Context Protocol) over a multi-database backend — Neo4j for graph patterns, PostgreSQL for audit trails, Redis for caching, and Qdrant for semantic search.",
+      "description": "12 LangGraph agents communicate exclusively through 6 custom MCP servers (Anthropic's Model Context Protocol) over a multi-database backend: Neo4j for graph patterns, PostgreSQL for audit trails, Redis for caching, and Qdrant for semantic search.",
       "flow": [
         {
           "step": "User Interface",
@@ -122,7 +122,7 @@ export const projects = [
         },
         {
           "step": "Cloud Infrastructure",
-          "description": "Full IaC with modular Terraform — 5 modules, separate dev/prod environments, S3 remote state, DynamoDB locking. Deployed on AWS ECS Fargate with GitHub Actions CI/CD pipeline.",
+          "description": "Full IaC with modular Terraform with 5 modules, separate dev/prod environments, S3 remote state, DynamoDB locking. Deployed on AWS ECS Fargate with GitHub Actions CI/CD pipeline.",
           "technologies": [
             "Terraform",
             "AWS ECS Fargate",
@@ -155,19 +155,19 @@ export const projects = [
     "techDecisions": [
       {
         "decision": "Why MCP (Model Context Protocol) over direct API calls?",
-        "reasoning": "MCP provides a clean abstraction layer between agents and external services. Each tool is explicitly declared with schemas, making the system auditable and testable. Direct API calls would tightly couple agent logic to service implementations — MCP allows swapping services (e.g., switching from Plaid to Stripe) without touching agent code. It also enforces clear contracts on what data agents can access."
+        "reasoning": "MCP provides a clean abstraction layer between agents and external services. Each tool is explicitly declared with schemas, making the system auditable and testable. Direct API calls would tightly couple agent logic to service implementations. MCP allows swapping services (e.g., switching from Plaid to Stripe) without touching agent code. It also enforces clear contracts on what data agents can access."
       },
       {
         "decision": "Why LangGraph over LangChain or AutoGen?",
-        "reasoning": "LangGraph's stateful graph execution gives explicit control over agent state transitions — critical for financial workflows where you need deterministic behavior. AutoGen's conversation-based model is too unpredictable for financial decisions. LangChain is great for chains but lacks LangGraph's first-class support for branching, parallel fan-out, and cycle detection. For complex multi-agent orchestration with parallel sub-tasks, LangGraph was the only real option."
+        "reasoning": "LangGraph's stateful graph execution gives explicit control over agent state transitions, which is critical for financial workflows where you need deterministic behavior. AutoGen's conversation-based model is too unpredictable for financial decisions. LangChain is great for chains but lacks LangGraph's first-class support for branching, parallel fan-out, and cycle detection. For complex multi-agent orchestration with parallel sub-tasks, LangGraph was the only real option."
       },
       {
         "decision": "Why Neo4j for subscription detection?",
-        "reasoning": "Subscription detection is fundamentally a graph problem — finding recurring patterns across transactions linked to the same merchant over time. Relational SQL requires complex self-joins and window functions that become slow at scale. Neo4j's Cypher queries express \"find all transactions from merchant X that repeat every 30 days\" naturally and run 10x faster on graph traversals. The dual-DB architecture (PostgreSQL + Neo4j) gives us the best of both worlds."
+        "reasoning": "Subscription detection is fundamentally a graph problem: finding recurring patterns across transactions linked to the same merchant over time. Relational SQL requires complex self-joins and window functions that become slow at scale. Neo4j's Cypher queries express \"find all transactions from merchant X that repeat every 30 days\" naturally and run 10x faster on graph traversals. The dual-DB architecture (PostgreSQL + Neo4j) gives us the best of both worlds."
       },
       {
         "decision": "Why fine-tune BERT instead of prompting Claude?",
-        "reasoning": "Prompting Claude for every single transaction classification would cost ~$0.003 per transaction — at 1000 transactions/month per user, that's $3/month/user just for categorization. SpendingCategoryBERT runs inference at essentially zero cost after the initial training. Fine-tuning also achieves better consistency — LLM prompting can be inconsistent for structured classification tasks. The custom model also runs locally, reducing latency from ~500ms (API call) to ~5ms (local inference)."
+        "reasoning": "Prompting Claude for every single transaction classification would cost ~$0.003 per transaction. At 1000 transactions/month per user, that's $3/month/user just for categorization. SpendingCategoryBERT runs inference at essentially zero cost after the initial training. Fine-tuning also achieves better consistency, since LLM prompting can be inconsistent for structured classification tasks. The custom model also runs locally, reducing latency from ~500ms (API call) to ~5ms (local inference)."
       },
       {
         "decision": "Why Terraform IaC over manual AWS setup?",
@@ -208,17 +208,17 @@ export const projects = [
     ],
     "tradeoffs": [
       {
-        "whatDidntWork": "First version used LangChain agents with direct API calls to each service. The coupling made testing nearly impossible — mocking 6 external services in unit tests was a nightmare. Refactoring to MCP servers took 2 weeks but made every agent independently testable.",
-        "whatWouldChange": "Would design the MCP layer from day one rather than retrofitting it. Would also invest earlier in a proper test harness for multi-agent workflows — testing emergent agent behavior is genuinely hard.",
+        "whatDidntWork": "First version used LangChain agents with direct API calls to each service. The coupling made testing nearly impossible: mocking 6 external services in unit tests was a nightmare. Refactoring to MCP servers took 2 weeks but made every agent independently testable.",
+        "whatWouldChange": "Would design the MCP layer from day one rather than retrofitting it. Would also invest earlier in a proper test harness for multi-agent workflows, since testing emergent agent behavior is genuinely hard.",
         "productionConsideration": "Production would need rate limiting per MCP server (Plaid has strict API limits), circuit breakers for external service failures, and message queuing (SQS) for async agent tasks. Would also implement agent sandboxing to prevent one failing agent from cascading."
       },
       {
         "whatDidntWork": "Initial cashflow prediction used simple linear regression on transaction history. Completely failed for irregular income (freelancers, variable pay). Needed to model income uncertainty explicitly.",
-        "whatWouldChange": "Would implement probabilistic forecasting (Monte Carlo simulation or Prophet) instead of point estimates. The \"30-day balance = $X\" output should be \"30-day balance = $X ± $Y with 80% confidence\" — uncertainty quantification matters for financial decisions.",
+        "whatWouldChange": "Would implement probabilistic forecasting (Monte Carlo simulation or Prophet) instead of point estimates. The \"30-day balance = $X\" output should be \"30-day balance = $X ± $Y with 80% confidence\", and uncertainty quantification matters for financial decisions.",
         "productionConsideration": "Would add user-specific model fine-tuning (personalized models per user), implement anomaly-adjusted forecasting (exclude one-time expenses from baseline), and add scenario analysis (\"what if I cancel subscription X?\"). Would also add model drift detection as spending patterns change over time."
       },
       {
-        "whatDidntWork": "The Advisor agent's weekly briefing initially ran all 4 sub-agents sequentially — taking 45 seconds. Parallelizing with asyncio.gather cut this to ~12 seconds, but the final synthesis prompt sometimes lost coherence when sub-agent outputs conflicted.",
+        "whatDidntWork": "The Advisor agent's weekly briefing initially ran all 4 sub-agents sequentially, taking 45 seconds. Parallelizing with asyncio.gather cut this to ~12 seconds, but the final synthesis prompt sometimes lost coherence when sub-agent outputs conflicted.",
         "whatWouldChange": "Would implement a structured output schema for each sub-agent to prevent synthesis issues. Would also add a \"confidence score\" to each sub-agent's output so the Advisor can weight findings appropriately when they conflict.",
         "productionConsideration": "Production briefings would be pre-generated overnight (cron job) rather than on-demand, cached in Redis, and delivered via push notification. Would add user preferences (briefing length, focus areas, delivery time). For scale, would shard users across multiple agent workers with a job queue."
       }
@@ -226,7 +226,7 @@ export const projects = [
   },
   {
     "id": "jobpilot",
-    "title": "JobPilot — Autonomous Job Application Agent",
+    "title": "JobPilot: Autonomous Job Application Agent",
     "slug": "jobpilot",
     "technologies": [
       "LangGraph",
@@ -242,7 +242,7 @@ export const projects = [
       "Recharts",
       "SSE (Server-Sent Events)"
     ],
-    "description": "An autonomous AI agent that takes your resume and job preferences and handles the entire application loop — from Indeed scraping to form-filling — using GPT-4o Vision to read any ATS form the way a human would.",
+    "description": "An autonomous AI agent that takes your resume and job preferences and handles the entire application loop, from Indeed scraping to form-filling, using GPT-4o Vision to read any ATS form the way a human would.",
     "highlights": [
       "Computer Use Agent",
       "Vision AI (GPT-4o)",
@@ -253,21 +253,21 @@ export const projects = [
     ],
     "problem": {
       "title": "The Problem",
-      "description": "Job hunting is one of the most time-consuming and repetitive tasks a person faces. A typical job seeker spends 3–5 hours per application — searching boards, tailoring resumes, writing cover letters, filling forms field by field. Multiply by 50–100 applications and you're looking at hundreds of hours of largely mechanical work.",
+      "description": "Job hunting is one of the most time-consuming and repetitive tasks a person faces. A typical job seeker spends 3 to 5 hours per application: searching boards, tailoring resumes, writing cover letters, filling forms field by field. Multiply by 50–100 applications and you're looking at hundreds of hours of largely mechanical work.",
       "existingSolutions": [
-        "LinkedIn Easy Apply only works on LinkedIn — most companies use their own ATS (Workday, Greenhouse, Lever)",
-        "Browser autofill tools are brittle — every ATS form has a different structure and field layout",
+        "LinkedIn Easy Apply only works on LinkedIn, and most companies use their own ATS (Workday, Greenhouse, Lever)",
+        "Browser autofill tools are brittle, because every ATS form has a different structure and field layout",
         "No existing tool reads and understands arbitrary web forms without custom code per site",
         "Zero tools combine job search + fit scoring + form-filling + cover letter generation in one autonomous pipeline"
       ]
     },
     "architecture": {
       "title": "Architecture",
-      "description": "LangGraph StateGraph orchestrates 8 specialized agents through a sequential pipeline. Each agent is a discrete, independently testable node with a single responsibility. A shared AgentState TypedDict accumulates results as the pipeline progresses. Conditional edges handle errors — if profile building fails, the pipeline routes directly to END.",
+      "description": "LangGraph StateGraph orchestrates 8 specialized agents through a sequential pipeline. Each agent is a discrete, independently testable node with a single responsibility. A shared AgentState TypedDict accumulates results as the pipeline progresses. Conditional edges handle errors: if profile building fails, the pipeline routes directly to END.",
       "flow": [
         {
           "step": "Profile Builder",
-          "description": "Claude extracts a structured candidate profile from raw resume text — name, skills, visa status, seniority, salary expectations, target roles. Saves to PostgreSQL candidates table with JSONB columns for skills arrays.",
+          "description": "Claude extracts a structured candidate profile from raw resume text, including name, skills, visa status, seniority, salary expectations, target roles. Saves to PostgreSQL candidates table with JSONB columns for skills arrays.",
           "technologies": [
             "Claude API",
             "PostgreSQL",
@@ -323,7 +323,7 @@ export const projects = [
         },
         {
           "step": "Form Reader",
-          "description": "GPT-4o Vision takes a screenshot of the application form and identifies every field — name, email, work auth, experience, custom questions. Vision-first approach handles dynamic SPAs perfectly; a DOM fallback catches cases where Vision returns empty results.",
+          "description": "GPT-4o Vision takes a screenshot of the application form and identifies every field: name, email, work auth, experience, custom questions. Vision-first approach handles dynamic SPAs perfectly; a DOM fallback catches cases where Vision returns empty results.",
           "technologies": [
             "GPT-4o Vision",
             "Playwright screenshots",
@@ -337,7 +337,7 @@ export const projects = [
         },
         {
           "step": "Form Filler",
-          "description": "Maps candidate profile data to detected form fields via a field_mapper. Playwright fills each field programmatically. Tracks fields_filled vs fields_skipped per application — a low fill rate flags when the navigator landed on the wrong page.",
+          "description": "Maps candidate profile data to detected form fields via a field_mapper. Playwright fills each field programmatically. Tracks fields_filled vs fields_skipped per application, and a low fill rate flags when the navigator landed on the wrong page.",
           "technologies": [
             "Playwright",
             "Field mapper logic",
@@ -383,15 +383,15 @@ export const projects = [
     "techDecisions": [
       {
         "decision": "Why GPT-4o Vision for form reading instead of a DOM parser?",
-        "reasoning": "Application forms vary wildly across ATS providers — Workday, Greenhouse, Lever, and custom forms all have completely different DOM structures. A DOM parser would require custom scraping logic per ATS, meaning constant maintenance as sites update. GPT-4o Vision reads any form the way a human does — one model handles every ATS equally. The Vision-first approach with DOM fallback gives us resilience: Vision handles dynamic SPAs and rendered content; the DOM fallback catches edge cases where Vision returns empty results."
+        "reasoning": "Application forms vary wildly across ATS providers: Workday, Greenhouse, Lever, and custom forms all have completely different DOM structures. A DOM parser would require custom scraping logic per ATS, meaning constant maintenance as sites update. GPT-4o Vision reads any form the way a human does, so one model handles every ATS equally. The Vision-first approach with DOM fallback gives us resilience: Vision handles dynamic SPAs and rendered content; the DOM fallback catches edge cases where Vision returns empty results."
       },
       {
         "decision": "Why LangGraph over plain LangChain for orchestration?",
-        "reasoning": "LangGraph's StateGraph gives explicit control over agent execution order, state persistence between nodes, and conditional routing on errors. For JobPilot, conditional edges are critical — if profile building fails, we route directly to END rather than attempting downstream steps with invalid data. Plain LangChain chains don't give you this kind of branching and error recovery. The shared AgentState TypedDict also makes the pipeline's data flow explicit and inspectable at every stage."
+        "reasoning": "LangGraph's StateGraph gives explicit control over agent execution order, state persistence between nodes, and conditional routing on errors. For JobPilot, conditional edges are critical: if profile building fails, we route directly to END rather than attempting downstream steps with invalid data. Plain LangChain chains don't give you this kind of branching and error recovery. The shared AgentState TypedDict also makes the pipeline's data flow explicit and inspectable at every stage."
       },
       {
         "decision": "Why Playwright over Selenium?",
-        "reasoning": "Playwright is async-native — essential for running concurrent browser sessions in a FastAPI async backend. It's also significantly more reliable with modern SPAs than Selenium: better screenshot APIs, network request interception, and built-in waiting for elements to be ready. Selenium's synchronous model would block the entire FastAPI event loop. For a production agent doing real browser automation in 2024, Playwright is simply the right tool."
+        "reasoning": "Playwright is async-native, which is essential for running concurrent browser sessions in a FastAPI async backend. It's also significantly more reliable with modern SPAs than Selenium: better screenshot APIs, network request interception, and built-in waiting for elements to be ready. Selenium's synchronous model would block the entire FastAPI event loop. For a production agent doing real browser automation in 2024, Playwright is simply the right tool."
       },
       {
         "decision": "Why FastAPI with SSE instead of WebSockets?",
@@ -436,25 +436,25 @@ export const projects = [
     ],
     "tradeoffs": [
       {
-        "whatDidntWork": "First version used a DOM parser to detect form fields. Worked fine on simple HTML forms but completely failed on Workday and Greenhouse — both render fields dynamically with JavaScript, and the DOM structure had nothing resembling a standard input label pattern. Spent two days writing custom selectors before switching to Vision.",
-        "whatWouldChange": "Would start Vision-first from day one rather than trying DOM parsing as the primary approach. The lesson: web scraping strategies from 2015 don't work on modern ATS platforms. Would also invest earlier in a screenshot-based test suite — making it easy to replay form reading against saved screenshots without needing a live browser session.",
+        "whatDidntWork": "First version used a DOM parser to detect form fields. Worked fine on simple HTML forms but completely failed on Workday and Greenhouse, because both render fields dynamically with JavaScript, and the DOM structure had nothing resembling a standard input label pattern. Spent two days writing custom selectors before switching to Vision.",
+        "whatWouldChange": "Would start Vision-first from day one rather than trying DOM parsing as the primary approach. The lesson: web scraping strategies from 2015 don't work on modern ATS platforms. Would also invest earlier in a screenshot-based test suite, making it easy to replay form reading against saved screenshots without needing a live browser session.",
         "productionConsideration": "Production would need a screenshot caching layer (store screenshots per application for debugging), headless browser pooling (spin up N Playwright instances for concurrent applications), and rate limiting per job board to avoid IP bans. Would also implement CAPTCHA detection to pause and alert the user rather than failing silently."
       },
       {
         "whatDidntWork": "The apply navigator initially tried to handle the full navigation (Indeed listing → Apply → ATS form) in a single Playwright session without checkpointing. When the ATS form took too long to load or showed a cookie banner, the whole navigation failed with no way to resume. Had to rebuild it with explicit state checkpoints at each navigation step.",
-        "whatWouldChange": "Would implement resumable navigation from the start — checkpoint the browser state after each successful navigation step and retry individual steps rather than restarting the full flow. Would also add explicit support for multi-page application forms (many ATS platforms spread the form across 3–5 pages).",
-        "productionConsideration": "Production navigation would need a distributed job queue (Celery + Redis) to handle concurrent applications across multiple companies, browser session persistence across retries, and a human-in-the-loop escalation path for applications that require manual steps (CAPTCHA, 2FA, employer-specific login). Would also build a \"sandbox mode\" that fills forms but doesn't submit — for user review before final submission."
+        "whatWouldChange": "Would implement resumable navigation from the start: checkpoint the browser state after each successful navigation step and retry individual steps rather than restarting the full flow. Would also add explicit support for multi-page application forms (many ATS platforms spread the form across 3–5 pages).",
+        "productionConsideration": "Production navigation would need a distributed job queue (Celery + Redis) to handle concurrent applications across multiple companies, browser session persistence across retries, and a human-in-the-loop escalation path for applications that require manual steps (CAPTCHA, 2FA, employer-specific login). Would also build a \"sandbox mode\" that fills forms but does not submit, allowing the user to review before final submission."
       },
       {
-        "whatDidntWork": "The cover letter agent initially produced generic outputs because the prompt was too open-ended. The agent would write openers like \"I am passionate about AI and excited to contribute to your team\" — exactly what recruiters flag as AI-generated. Needed several prompt iterations to get company-specific, human-sounding output.",
+        "whatDidntWork": "The cover letter agent initially produced generic outputs because the prompt was too open-ended. The agent would write openers like \"I am passionate about AI and excited to contribute to your team\", which is exactly what recruiters flag as AI-generated. Needed several prompt iterations to get company-specific, human-sounding output.",
         "whatWouldChange": "Would implement a cover letter evaluation loop: generate → score against anti-AI-tell criteria → regenerate if score is too low. Would also fine-tune a small classifier to detect \"AI-sounding\" phrases and add it to the generation feedback loop. Additionally, would personalize based on the candidate's actual experience rather than just the job description.",
-        "productionConsideration": "Production would A/B test cover letter templates against response rates — track which writing styles get more callbacks. Would implement a feedback loop where users mark applications that got responses, training a reward model on which cover letters performed best. Would also add a human review step for high-priority applications (score >= 9.0) where the user can edit before submission."
+        "productionConsideration": "Production would A/B test cover letter templates against response rates, tracking which writing styles get more callbacks. Would implement a feedback loop where users mark applications that got responses, training a reward model on which cover letters performed best. Would also add a human review step for high-priority applications (score >= 9.0) where the user can edit before submission."
       }
     ]
   },
   {
     "id": "apex",
-    "title": "APEX — Autonomous Research Scientist",
+    "title": "APEX: Autonomous Research Scientist",
     "slug": "apex",
     "technologies": [
       "LangGraph",
@@ -472,7 +472,7 @@ export const projects = [
       "MLflow",
       "arXiv API"
     ],
-    "description": "A multi-agent research scientist that autonomously mines arXiv papers, maps knowledge gaps in a Neo4j graph, debates hypotheses through adversarial agent dialogue, and drafts patent-style documents — wired through 4 custom MCP servers and Kafka for full observability.",
+    "description": "A multi-agent research scientist that autonomously mines arXiv papers, maps knowledge gaps in a Neo4j graph, debates hypotheses through adversarial agent dialogue, and drafts patent-style documents, wired through 4 custom MCP servers and Kafka for full observability.",
     "highlights": [
       "Multi-Agent Research Pipeline",
       "Knowledge Graph (Neo4j + GDS)",
@@ -483,11 +483,11 @@ export const projects = [
     ],
     "problem": {
       "title": "The Problem",
-      "description": "Scientific research moves faster than any human researcher can track. Thousands of papers are published on arXiv every week, and the most valuable insights — gaps between fields, untested hypotheses, patentable combinations of existing ideas — are invisible to anyone reading papers one by one. No tool automates the full loop: ingest → structure → reason → validate → draft.",
+      "description": "Scientific research moves faster than any human researcher can track. Thousands of papers are published on arXiv every week, and the most valuable insights (gaps between fields, untested hypotheses, patentable combinations of existing ideas) are invisible to anyone reading papers one by one. No tool automates the full loop: ingest → structure → reason → validate → draft.",
       "existingSolutions": [
         "Semantic Scholar / connected papers show citation graphs but don't reason about gaps or generate hypotheses",
         "LLM-based summarizers read papers but can't cross-reference a structured knowledge graph of 780+ concepts",
-        "Patent tools require human-written claims — no system autonomously identifies novelty from a research corpus",
+        "Patent tools require human-written claims, and no system autonomously identifies novelty from a research corpus",
         "Research assistants like Elicit answer questions but don't run an adversarial debate to stress-test a hypothesis before committing to it"
       ]
     },
@@ -544,7 +544,7 @@ export const projects = [
         },
         {
           "step": "4 LangGraph Agents",
-          "description": "Harvester ingests and structures papers. Reasoner finds gaps in the knowledge graph and generates hypotheses. Skeptic runs adversarial debate — challenges every hypothesis with counter-evidence from the graph. Inventor takes validated hypotheses and drafts patent-style documents with prior art and novelty scores.",
+          "description": "Harvester ingests and structures papers. Reasoner finds gaps in the knowledge graph and generates hypotheses. Skeptic runs adversarial debate, challenging every hypothesis with counter-evidence from the graph. Inventor takes validated hypotheses and drafts patent-style documents with prior art and novelty scores.",
           "technologies": [
             "LangGraph",
             "Claude API",
@@ -610,23 +610,23 @@ export const projects = [
     "techDecisions": [
       {
         "decision": "Why Neo4j + GDS over a relational DB for the knowledge graph?",
-        "reasoning": "Research knowledge is fundamentally a graph: papers cite papers, authors co-author, concepts co-occur. Finding \"gaps\" — pairs of concepts that should be connected but aren't — is a graph traversal problem. In SQL, this requires multi-level self-joins that become exponentially slow as the graph grows. Neo4j's Cypher expresses \"find all concept pairs with no connecting hypothesis\" naturally. GDS adds graph analytics (centrality, community detection, path finding) that would require separate libraries in a relational setup. The combination gives us both structural queries and analytical algorithms on the same data."
+        "reasoning": "Research knowledge is fundamentally a graph: papers cite papers, authors co-author, concepts co-occur. Finding \"gaps\" (pairs of concepts that should be connected but are not) is a graph traversal problem. In SQL, this requires multi-level self-joins that become exponentially slow as the graph grows. Neo4j's Cypher expresses \"find all concept pairs with no connecting hypothesis\" naturally. GDS adds graph analytics (centrality, community detection, path finding) that would require separate libraries in a relational setup. The combination gives us both structural queries and analytical algorithms on the same data."
       },
       {
-        "decision": "Why dual retrieval — Neo4j + Weaviate — instead of just one?",
-        "reasoning": "Neo4j excels at structural/relational queries: \"which concepts are neighbors of X?\", \"which papers share authors with Y?\", \"what hypotheses exist between concept A and B?\". Weaviate handles semantic similarity: \"find papers conceptually similar to this hypothesis\". These are different retrieval modes — graph traversal vs vector proximity. Using only Neo4j would miss semantic neighbors with different terminology. Using only Weaviate would lose the structural relationships (citation chains, author networks, concept co-occurrence counts) that make gap detection possible."
+        "decision": "Why dual retrieval (Neo4j + Weaviate) instead of just one?",
+        "reasoning": "Neo4j excels at structural/relational queries: \"which concepts are neighbors of X?\", \"which papers share authors with Y?\", \"what hypotheses exist between concept A and B?\". Weaviate handles semantic similarity: \"find papers conceptually similar to this hypothesis\". These are different retrieval modes: graph traversal vs vector proximity. Using only Neo4j would miss semantic neighbors with different terminology. Using only Weaviate would lose the structural relationships (citation chains, author networks, concept co-occurrence counts) that make gap detection possible."
       },
       {
         "decision": "Why Kafka instead of direct agent-to-agent calls or a simple event queue?",
-        "reasoning": "Kafka gives us persistent, replayable event logs — critical for a research pipeline where you want to audit exactly what every agent did and when. Direct calls between agents create tight coupling (Reasoner must know about Skeptic's API). A simple in-memory queue (like asyncio.Queue) loses events on restart. Kafka topics (papers.ingested, hypothesis.validated, etc.) give each pipeline stage its own observable stream. This also means the dashboard can subscribe independently without the agents needing to know about the frontend."
+        "reasoning": "Kafka gives us persistent, replayable event logs, which is critical for a research pipeline where you want to audit exactly what every agent did and when. Direct calls between agents create tight coupling (Reasoner must know about Skeptic's API). A simple in-memory queue (like asyncio.Queue) loses events on restart. Kafka topics (papers.ingested, hypothesis.validated, etc.) give each pipeline stage its own observable stream. This also means the dashboard can subscribe independently without the agents needing to know about the frontend."
       },
       {
         "decision": "Why train HypothesisValidityBERT instead of always using Claude?",
-        "reasoning": "The Skeptic agent needs to evaluate potentially dozens of hypotheses per run. Using Claude for every evaluation would cost ~$0.01 per hypothesis — at scale across thousands of hypotheses, this becomes significant. HypothesisValidityBERT runs locally in ~20ms vs ~800ms for a Claude API call. It serves as a fast first-pass filter: hypotheses that fail the BERT classifier (low confidence) are skipped or queued for human review; only borderline cases escalate to Claude for nuanced analysis. This tiered approach reduces Claude API cost by ~80% while maintaining quality."
+        "reasoning": "The Skeptic agent needs to evaluate potentially dozens of hypotheses per run. Using Claude for every evaluation would cost roughly $0.01 per hypothesis. At scale across thousands of hypotheses, this becomes significant. HypothesisValidityBERT runs locally in ~20ms vs ~800ms for a Claude API call. It serves as a fast first-pass filter: hypotheses that fail the BERT classifier (low confidence) are skipped or queued for human review; only borderline cases escalate to Claude for nuanced analysis. This tiered approach reduces Claude API cost by ~80% while maintaining quality."
       },
       {
         "decision": "Why adversarial debate (Reasoner + Skeptic) instead of a single reasoning agent?",
-        "reasoning": "Single-agent hypothesis generation suffers from confirmation bias — the same model that generated the hypothesis tends to validate it. The adversarial architecture forces hypothesis quality through conflict: Reasoner generates the hypothesis using graph gaps, Skeptic is explicitly prompted to find counter-evidence and weaknesses, and only hypotheses that survive the Skeptic's challenge advance to the Inventor. This mirrors peer review in science. The approach measurably improves hypothesis quality vs a single agent asked to \"critically evaluate your own hypothesis\"."
+        "reasoning": "Single-agent hypothesis generation suffers from confirmation bias, since the same model that generated the hypothesis tends to validate it. The adversarial architecture forces hypothesis quality through conflict: Reasoner generates the hypothesis using graph gaps, Skeptic is explicitly prompted to find counter-evidence and weaknesses, and only hypotheses that survive the Skeptic's challenge advance to the Inventor. This mirrors peer review in science. The approach measurably improves hypothesis quality vs a single agent asked to \"critically evaluate your own hypothesis\"."
       }
     ],
     "metrics": [
@@ -663,18 +663,18 @@ export const projects = [
     ],
     "tradeoffs": [
       {
-        "whatDidntWork": "First version of the Skeptic agent was prompted with \"evaluate this hypothesis critically\" — but it was using the same Claude model that generated the hypothesis, with no structural separation. The Skeptic consistently agreed with the Reasoner, making the debate loop pointless. Had to separate the agents with different system prompts, different context windows (Skeptic gets only the hypothesis + graph evidence, not the Reasoner's chain of thought), and different temperature settings.",
-        "whatWouldChange": "Would implement a proper adversarial training setup: generate a dataset of hypothesis-counterargument pairs, fine-tune a dedicated Skeptic model rather than relying on prompt engineering alone. Would also add a \"debate round limit\" — currently the agents can loop indefinitely if no consensus is reached. A maximum of 3 debate rounds with forced escalation to human review prevents infinite loops.",
-        "productionConsideration": "Production would need a human-in-the-loop step before patent drafting — the Inventor's output is good enough for prior art search and novelty scoring, but not for actual patent filing without expert review. Would integrate with USPTO patent search API for real prior art validation, implement versioned hypothesis storage (hypotheses evolve across debate rounds), and add a \"confidence calibration\" layer so the system knows when to defer to human judgment."
+        "whatDidntWork": "First version of the Skeptic agent was prompted with \"evaluate this hypothesis critically\", but it was using the same Claude model that generated the hypothesis, with no structural separation. The Skeptic consistently agreed with the Reasoner, making the debate loop pointless. Had to separate the agents with different system prompts, different context windows (Skeptic gets only the hypothesis + graph evidence, not the Reasoner's chain of thought), and different temperature settings.",
+        "whatWouldChange": "Would implement a proper adversarial training setup: generate a dataset of hypothesis-counterargument pairs, fine-tune a dedicated Skeptic model rather than relying on prompt engineering alone. Would also add a \"debate round limit\", since the agents can currently loop indefinitely if no consensus is reached. A maximum of 3 debate rounds with forced escalation to human review prevents infinite loops.",
+        "productionConsideration": "Production would need a human-in-the-loop step before patent drafting. The Inventor's output is good enough for prior art search and novelty scoring, but not for actual patent filing without expert review. Would integrate with USPTO patent search API for real prior art validation, implement versioned hypothesis storage (hypotheses evolve across debate rounds), and add a \"confidence calibration\" layer so the system knows when to defer to human judgment."
       },
       {
-        "whatDidntWork": "arXiv rate limiting caused silent failures in early versions. The standalone scraper defaulted to 3.0 req/s, which got the IP temporarily blocked by the export API. Batch runs would silently return empty results after the first few hundred papers — no error, just nothing. Only discovered the issue by checking Redis and noticing the processed-paper count stopped growing.",
+        "whatDidntWork": "arXiv rate limiting caused silent failures in early versions. The standalone scraper defaulted to 3.0 req/s, which got the IP temporarily blocked by the export API. Batch runs would silently return empty results after the first few hundred papers, with no error, just nothing. Only discovered the issue by checking Redis and noticing the processed-paper count stopped growing.",
         "whatWouldChange": "Would implement explicit HTTP 429 detection with exponential backoff rather than a fixed rate limit. Would also add scraping health monitoring (papers-per-minute metric to Kafka) so rate limit issues surface immediately in the dashboard instead of silently corrupting the dataset. For production scale, would distribute scraping across multiple IPs/proxies with proper attribution.",
         "productionConsideration": "Production ingestion would use the official Semantic Scholar API (which has higher rate limits and better structured data than the arXiv export API) as the primary source, with arXiv as a fallback. Would add incremental ingestion (only new papers since last run via date filtering) rather than re-scraping the full corpus each time. Would also implement paper deduplication by DOI across multiple sources, not just by arXiv ID."
       },
       {
-        "whatDidntWork": "The docker-compose setup with 7 services (Neo4j, Weaviate, Postgres, Redis, Kafka, Zookeeper, app) had startup ordering issues — the app container would start before Neo4j was ready to accept connections, causing the pipeline to fail on first run. The Dockerfile CMD points to main.py which only verifies environment, not the actual LangGraph pipeline, so this was a silent issue for new contributors.",
-        "whatWouldChange": "Would add explicit health checks and depends_on conditions in docker-compose so the app container waits for all DBs to be healthy before starting. Would also replace main.py as the Dockerfile entrypoint with a proper init script that runs schema migrations, seeds the Agent nodes, and confirms connectivity to all services before declaring the container ready. The current requirements.txt (only python-dotenv) is also misleading — would add a full pinned requirements.txt generated from the actual runtime.",
+        "whatDidntWork": "The docker-compose setup with 7 services (Neo4j, Weaviate, Postgres, Redis, Kafka, Zookeeper, app) had startup ordering issues: the app container would start before Neo4j was ready to accept connections, causing the pipeline to fail on first run. The Dockerfile CMD points to main.py which only verifies environment, not the actual LangGraph pipeline, so this was a silent issue for new contributors.",
+        "whatWouldChange": "Would add explicit health checks and depends_on conditions in docker-compose so the app container waits for all DBs to be healthy before starting. Would also replace main.py as the Dockerfile entrypoint with a proper init script that runs schema migrations, seeds the Agent nodes, and confirms connectivity to all services before declaring the container ready. The current requirements.txt (only python-dotenv) is also misleading. We would add a full pinned requirements.txt generated from the actual runtime.",
         "productionConsideration": "Production would deploy on Kubernetes with separate deployments for the agent workers and the API server, using init containers for DB readiness checks. Would migrate from docker-compose Kafka to AWS MSK (managed Kafka) to avoid operational overhead. Would use AWS Neptune or AuraDB (managed Neo4j) instead of self-hosted Neo4j to eliminate the GDS plugin management burden."
       }
     ]

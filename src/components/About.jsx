@@ -39,7 +39,7 @@ const About = () => {
           <div className="about-text">
             <p className="about-intro">
               I'm an AI engineer based in Boston, finishing my M.S. in Information Systems at Northeastern (May 2026).
-              I build things end-to-end — from data pipelines and model training to deployment and observability.
+              I build things end-to-end, from data pipelines and model training to deployment and observability.
               My work sits at the intersection of multi-agent systems, RAG, and production ML infrastructure.
             </p>
 
@@ -68,14 +68,14 @@ const About = () => {
               <motion.div className="about-section" variants={itemVariants}>
                 <h3>Computer Vision & Multimodal AI</h3>
                 <p>
-                  Built a <strong>Movie Semantic Search</strong> system combining YOLOv8 (96% actor recognition across 18 actors), CLIP embeddings, and FAISS for semantic video retrieval. Integrated GPT-4o Vision into JobPilot for reading arbitrary ATS application forms — a Vision-first approach that handles any form without per-site custom code. Also used Claude Vision for receipt OCR in Foresight's expense pipeline.
+                  Built a <strong>Movie Semantic Search</strong> system combining YOLOv8 (96% actor recognition across 18 actors), CLIP embeddings, and FAISS for semantic video retrieval. Integrated GPT-4o Vision into JobPilot for reading arbitrary ATS application forms, a Vision-first approach that handles any form without per-site custom code. Also used Claude Vision for receipt OCR in Foresight's expense pipeline.
                 </p>
               </motion.div>
 
               <motion.div className="about-section" variants={itemVariants}>
                 <h3>Production & Infrastructure</h3>
                 <p>
-                  I care about systems that actually run. Foresight deploys on <strong>AWS ECS Fargate</strong> with modular Terraform IaC (5 modules, dev + prod environments), GitHub Actions CI/CD, and a full observability stack (LangSmith + MLflow + CloudWatch). Interned at <strong>HPE Singapore</strong> deploying ML models on Azure Functions and Azure ML Studio — rated Very Good by the programme.
+                  I care about systems that actually run. Foresight deploys on <strong>AWS ECS Fargate</strong> with modular Terraform IaC (5 modules, dev + prod environments), GitHub Actions CI/CD, and a full observability stack (LangSmith + MLflow + CloudWatch). Interned at <strong>HPE Singapore</strong> deploying ML models on Azure Functions and Azure ML Studio, rated Very Good by the programme.
                 </p>
               </motion.div>
             </div>

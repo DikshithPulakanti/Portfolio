@@ -4,36 +4,40 @@ import './Skills.css'
 const Skills = () => {
   const skillCategories = [
     {
-      category: 'Programming Languages',
-      skills: ['Python', 'SQL']
+      category: 'Languages',
+      skills: ['Python', 'TypeScript', 'SQL', 'JavaScript']
     },
     {
-      category: 'Libraries & Frameworks',
-      skills: ['TensorFlow', 'PyTorch', 'Scikit-learn', 'SciPy', 'NumPy', 'Pandas', 'Hugging Face', 'LangChain', 'OpenAI API']
+      category: 'AI Agents & Orchestration',
+      skills: ['LangGraph', 'MCP (Model Context Protocol)', 'LangChain', 'Multi-Agent Systems', 'RAG Pipelines', 'LLM Fine-tuning', 'Prompt Engineering']
     },
     {
-      category: 'Machine Learning & AI',
-      skills: ['LLM Fine-tuning', 'Retrieval-Augmented Generation (RAG)']
+      category: 'LLMs & Vision Models',
+      skills: ['Claude API (Anthropic)', 'GPT-4o Vision', 'OpenAI API', 'Hugging Face Transformers', 'BERT Fine-tuning', 'CLIP', 'Whisper STT', 'YOLOv8']
     },
     {
-      category: 'MLOps & Deployment',
-      skills: ['CI/CD Pipelines', 'Docker', 'Kubernetes', 'MLflow']
+      category: 'ML & Deep Learning',
+      skills: ['PyTorch', 'TensorFlow', 'Scikit-learn', 'PyTorch Lightning', 'CNN / RNN / LSTM', 'Sentence Transformers', 'NumPy', 'Pandas']
     },
     {
-      category: 'Databases & Storage',
-      skills: ['PostgreSQL', 'MSSQL', 'NoSQL', 'Qdrant', 'Elasticsearch']
+      category: 'Databases & Vector Search',
+      skills: ['PostgreSQL', 'Neo4j + GDS', 'Weaviate', 'Qdrant', 'Redis', 'FAISS', 'MongoDB']
     },
     {
-      category: 'Cloud Platforms',
-      skills: ['AWS (SageMaker, Lambda)', 'Azure (ML, Cognitive Search)']
+      category: 'Backend & APIs',
+      skills: ['FastAPI', 'asyncio', 'Playwright', 'REST APIs', 'Server-Sent Events (SSE)', 'aiohttp', 'Pydantic']
     },
     {
-      category: 'Data Engineering & Infrastructure',
-      skills: ['Architecting ML Pipelines', 'Apache Airflow']
+      category: 'Frontend',
+      skills: ['Next.js 14', 'React', 'Tailwind CSS', 'TypeScript', 'Recharts', 'PWA']
     },
     {
-      category: 'Full-Stack Development',
-      skills: ['React', 'Node.js', 'MongoDB', 'Express.js']
+      category: 'MLOps & Observability',
+      skills: ['MLflow', 'LangSmith', 'DVC', 'GitHub Actions CI/CD', 'CloudWatch', 'Docker', 'Kubernetes']
+    },
+    {
+      category: 'Cloud & Infrastructure',
+      skills: ['AWS (ECS Fargate, SageMaker, Lambda, Rekognition)', 'Azure (ML Studio, Azure Functions)', 'Terraform', 'Apache Kafka', 'Apache Spark']
     }
   ]
 

@@ -7,6 +7,12 @@
   margin: 0 auto;
 }
 
+.experience-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3.5rem;
+}
+
 .experience-item {
   background: var(--bg-card);
   border-radius: 16px;
@@ -101,6 +107,15 @@
   border-radius: 6px;
   border: 1px solid var(--border-primary);
   font-family: 'JetBrains Mono', monospace;
+}
+
+.experience-summary {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.7;
+  margin: 0 0 2rem 0;
+  padding-left: 1rem;
+  border-left: 3px solid var(--accent-blue);
 }
 
 .experience-achievements h5 {

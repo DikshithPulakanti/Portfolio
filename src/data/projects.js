@@ -1,491 +1,41 @@
 export const projects = [
   {
-    "id": "foresight",
-    "title": "Foresight: Proactive AI Financial OS",
-    "slug": "foresight",
-    "technologies": [
-      "LangGraph",
-      "Claude API (Anthropic)",
-      "FastAPI",
-      "Next.js 14",
-      "Neo4j",
-      "Qdrant",
-      "Terraform",
-      "AWS (ECS Fargate)",
-      "Plaid API",
-      "Whisper STT",
-      "gTTS",
-      "PostgreSQL",
-      "Redis",
-      "Docker",
-      "GitHub Actions",
-      "Hugging Face"
-    ],
-    "description": "A proactive AI financial operating system with 12 specialized LangGraph agents and 6 custom MCP servers that predicts cashflow, detects anomalies, and delivers weekly audio financial briefings, catching problems before they cost you money.",
-    "highlights": [
-      "Multi-Agent Architecture",
-      "Custom MCP Servers",
-      "Cashflow Prediction",
-      "Voice AI",
-      "Computer Vision",
-      "Custom ML Model"
-    ],
-    "problem": {
-      "title": "The Problem",
-      "description": "Personal finance tools are reactive. They show you what happened after it already hurt you. Overdraft fees, forgotten subscriptions, and missed bills cost people thousands per year because no system proactively monitors, predicts, and alerts before problems occur.",
-      "existingSolutions": [
-        "Mint/YNAB only show historical data, with no prediction or proactive alerts",
-        "Bank alerts are threshold-based and miss subtle anomalies (duplicate charges, creeping subscriptions)",
-        "No existing tool scans your inbox for upcoming renewals before they charge",
-        "Zero tools deliver personalized audio briefings with forward-looking cashflow forecasts"
-      ]
-    },
-    "architecture": {
-      "title": "Architecture",
-      "description": "12 LangGraph agents communicate exclusively through 6 custom MCP servers (Anthropic's Model Context Protocol) over a multi-database backend: Neo4j for graph patterns, PostgreSQL for audit trails, Redis for caching, and Qdrant for semantic search.",
-      "flow": [
-        {
-          "step": "User Interface",
-          "description": "Next.js 14 Progressive Web App with offline capability. Supports natural language voice queries and real-time dashboard updates via WebSockets.",
-          "technologies": [
-            "Next.js 14",
-            "Tailwind CSS",
-            "Chart.js",
-            "PWA"
-          ],
-          "metrics": [
-            "Installable PWA",
-            "Offline capability",
-            "Real-time WebSockets"
-          ]
-        },
-        {
-          "step": "LangGraph Orchestrator",
-          "description": "12 specialized agents managed by a central orchestrator. Uses asyncio.gather for parallel fan-out (Advisor agent runs 4 sub-agents concurrently). Each agent has a defined role and communicates only via MCP tool calls.",
-          "technologies": [
-            "LangGraph",
-            "Claude API",
-            "asyncio"
-          ],
-          "metrics": [
-            "12 agents",
-            "Parallel fan-out",
-            "< 3s orchestration"
-          ]
-        },
-        {
-          "step": "6 Custom MCP Servers",
-          "description": "Anthropic's Model Context Protocol as a clean abstraction layer. 20 tools total across: Plaid MCP (bank data), Gmail MCP (financial signals), Calendar MCP (event sync), Graph MCP (Neo4j queries), Vision MCP (receipt OCR), Voice MCP (Whisper + gTTS).",
-          "technologies": [
-            "MCP Protocol",
-            "Plaid API",
-            "Gmail API",
-            "Claude Vision",
-            "Whisper STT",
-            "gTTS"
-          ],
-          "metrics": [
-            "6 servers",
-            "20 tools",
-            "Protocol-based isolation"
-          ]
-        },
-        {
-          "step": "SpendingCategoryBERT",
-          "description": "Custom fine-tuned BERT model classifying raw bank transaction strings into 8 spending categories. Trained on 50,000 synthetic examples generated with Claude Haiku. Published on HuggingFace: DikshithPulakanti/SpendingCategoryBERT.",
-          "technologies": [
-            "BERT",
-            "Hugging Face",
-            "PyTorch",
-            "Claude Haiku"
-          ],
-          "metrics": [
-            "8 categories",
-            "50K training examples",
-            "HuggingFace deployed"
-          ]
-        },
-        {
-          "step": "Data Layer",
-          "description": "Dual-database architecture: PostgreSQL for relational audit/alerts, Neo4j for graph-based spending patterns and subscription detection, Redis for caching hot queries, Qdrant for semantic vector search over financial documents.",
-          "technologies": [
-            "PostgreSQL",
-            "Neo4j",
-            "Redis",
-            "Qdrant"
-          ],
-          "metrics": [
-            "4 databases",
-            "Graph + relational",
-            "< 10ms cache hits"
-          ]
-        },
-        {
-          "step": "Cloud Infrastructure",
-          "description": "Full IaC with modular Terraform with 5 modules, separate dev/prod environments, S3 remote state, DynamoDB locking. Deployed on AWS ECS Fargate with GitHub Actions CI/CD pipeline.",
-          "technologies": [
-            "Terraform",
-            "AWS ECS Fargate",
-            "GitHub Actions",
-            "Docker"
-          ],
-          "metrics": [
-            "5 Terraform modules",
-            "Dev + prod environments",
-            "Automated CI/CD"
-          ]
-        },
-        {
-          "step": "Observability",
-          "description": "LangSmith for agent trace monitoring, MLflow for model experiment tracking, CloudWatch for infrastructure metrics. Full end-to-end visibility across agent calls, tool invocations, and model performance.",
-          "technologies": [
-            "LangSmith",
-            "MLflow",
-            "CloudWatch"
-          ],
-          "metrics": [
-            "Agent trace monitoring",
-            "Model experiment tracking",
-            "Full observability stack"
-          ]
-        }
-      ],
-      "diagram": "foresight"
-    },
-    "techDecisions": [
-      {
-        "decision": "Why MCP (Model Context Protocol) over direct API calls?",
-        "reasoning": "MCP provides a clean abstraction layer between agents and external services. Each tool is explicitly declared with schemas, making the system auditable and testable. Direct API calls would tightly couple agent logic to service implementations. MCP allows swapping services (e.g., switching from Plaid to Stripe) without touching agent code. It also enforces clear contracts on what data agents can access."
-      },
-      {
-        "decision": "Why LangGraph over LangChain or AutoGen?",
-        "reasoning": "LangGraph's stateful graph execution gives explicit control over agent state transitions, which is critical for financial workflows where you need deterministic behavior. AutoGen's conversation-based model is too unpredictable for financial decisions. LangChain is great for chains but lacks LangGraph's first-class support for branching, parallel fan-out, and cycle detection. For complex multi-agent orchestration with parallel sub-tasks, LangGraph was the only real option."
-      },
-      {
-        "decision": "Why Neo4j for subscription detection?",
-        "reasoning": "Subscription detection is fundamentally a graph problem: finding recurring patterns across transactions linked to the same merchant over time. Relational SQL requires complex self-joins and window functions that become slow at scale. Neo4j's Cypher queries express \"find all transactions from merchant X that repeat every 30 days\" naturally and run 10x faster on graph traversals. The dual-DB architecture (PostgreSQL + Neo4j) gives us the best of both worlds."
-      },
-      {
-        "decision": "Why fine-tune BERT instead of prompting Claude?",
-        "reasoning": "Prompting Claude for every single transaction classification would cost ~$0.003 per transaction. At 1000 transactions/month per user, that's $3/month/user just for categorization. SpendingCategoryBERT runs inference at essentially zero cost after the initial training. Fine-tuning also achieves better consistency, since LLM prompting can be inconsistent for structured classification tasks. The custom model also runs locally, reducing latency from ~500ms (API call) to ~5ms (local inference)."
-      },
-      {
-        "decision": "Why Terraform IaC over manual AWS setup?",
-        "reasoning": "Financial applications require reproducible, auditable infrastructure. Manual AWS setup is error-prone and impossible to version control. Terraform's modular design (separate modules for networking, compute, databases, monitoring) allows spinning up identical dev/prod environments with a single command. Remote state in S3 with DynamoDB locking prevents concurrent modifications. For a production financial system, IaC is not optional."
-      }
-    ],
-    "metrics": [
-      {
-        "metric": "Cashflow Prediction Horizon",
-        "value": "30/60 days",
-        "improvement": "Exact balance forecasting"
-      },
-      {
-        "metric": "Subscription Detection",
-        "value": "94% recall",
-        "improvement": "Catches forgotten/duplicate subs"
-      },
-      {
-        "metric": "Transaction Categorization",
-        "value": "~97% accuracy",
-        "improvement": "SpendingCategoryBERT vs GPT baseline"
-      },
-      {
-        "metric": "Categorization Cost Reduction",
-        "value": "99.8% cheaper",
-        "improvement": "Local BERT vs Claude API per transaction"
-      },
-      {
-        "metric": "Agent Orchestration",
-        "value": "< 3s",
-        "improvement": "Full 12-agent pipeline with parallel fan-out"
-      },
-      {
-        "metric": "Voice Query Response",
-        "value": "< 5s",
-        "improvement": "End-to-end: STT → agents → TTS"
-      }
-    ],
-    "tradeoffs": [
-      {
-        "whatDidntWork": "First version used LangChain agents with direct API calls to each service. The coupling made testing nearly impossible: mocking 6 external services in unit tests was a nightmare. Refactoring to MCP servers took 2 weeks but made every agent independently testable.",
-        "whatWouldChange": "Would design the MCP layer from day one rather than retrofitting it. Would also invest earlier in a proper test harness for multi-agent workflows, since testing emergent agent behavior is genuinely hard.",
-        "productionConsideration": "Production would need rate limiting per MCP server (Plaid has strict API limits), circuit breakers for external service failures, and message queuing (SQS) for async agent tasks. Would also implement agent sandboxing to prevent one failing agent from cascading."
-      },
-      {
-        "whatDidntWork": "Initial cashflow prediction used simple linear regression on transaction history. Completely failed for irregular income (freelancers, variable pay). Needed to model income uncertainty explicitly.",
-        "whatWouldChange": "Would implement probabilistic forecasting (Monte Carlo simulation or Prophet) instead of point estimates. The \"30-day balance = $X\" output should be \"30-day balance = $X ± $Y with 80% confidence\", and uncertainty quantification matters for financial decisions.",
-        "productionConsideration": "Would add user-specific model fine-tuning (personalized models per user), implement anomaly-adjusted forecasting (exclude one-time expenses from baseline), and add scenario analysis (\"what if I cancel subscription X?\"). Would also add model drift detection as spending patterns change over time."
-      },
-      {
-        "whatDidntWork": "The Advisor agent's weekly briefing initially ran all 4 sub-agents sequentially, taking 45 seconds. Parallelizing with asyncio.gather cut this to ~12 seconds, but the final synthesis prompt sometimes lost coherence when sub-agent outputs conflicted.",
-        "whatWouldChange": "Would implement a structured output schema for each sub-agent to prevent synthesis issues. Would also add a \"confidence score\" to each sub-agent's output so the Advisor can weight findings appropriately when they conflict.",
-        "productionConsideration": "Production briefings would be pre-generated overnight (cron job) rather than on-demand, cached in Redis, and delivered via push notification. Would add user preferences (briefing length, focus areas, delivery time). For scale, would shard users across multiple agent workers with a job queue."
-      }
-    ]
-  },
-  {
-    "id": "jobpilot",
-    "title": "JobPilot: Autonomous Job Application Agent",
-    "slug": "jobpilot",
-    "technologies": [
-      "LangGraph",
-      "GPT-4o Vision",
-      "Claude API",
-      "Playwright",
-      "FastAPI",
-      "Next.js 14",
-      "PostgreSQL",
-      "Python 3.11",
-      "TypeScript",
-      "Tailwind CSS",
-      "Recharts",
-      "SSE (Server-Sent Events)"
-    ],
-    "description": "An autonomous AI agent that takes your resume and job preferences and handles the entire application loop, from Indeed scraping to form-filling, using GPT-4o Vision to read any ATS form the way a human would.",
-    "highlights": [
-      "Computer Use Agent",
-      "Vision AI (GPT-4o)",
-      "Multi-Agent Pipeline",
-      "Browser Automation",
-      "Real-time Dashboard",
-      "5-Dimension Fit Scoring"
-    ],
-    "problem": {
-      "title": "The Problem",
-      "description": "Job hunting is one of the most time-consuming and repetitive tasks a person faces. A typical job seeker spends 3 to 5 hours per application: searching boards, tailoring resumes, writing cover letters, filling forms field by field. Multiply by 50–100 applications and you're looking at hundreds of hours of largely mechanical work.",
-      "existingSolutions": [
-        "LinkedIn Easy Apply only works on LinkedIn, and most companies use their own ATS (Workday, Greenhouse, Lever)",
-        "Browser autofill tools are brittle, because every ATS form has a different structure and field layout",
-        "No existing tool reads and understands arbitrary web forms without custom code per site",
-        "Zero tools combine job search + fit scoring + form-filling + cover letter generation in one autonomous pipeline"
-      ]
-    },
-    "architecture": {
-      "title": "Architecture",
-      "description": "LangGraph StateGraph orchestrates 8 specialized agents through a sequential pipeline. Each agent is a discrete, independently testable node with a single responsibility. A shared AgentState TypedDict accumulates results as the pipeline progresses. Conditional edges handle errors: if profile building fails, the pipeline routes directly to END.",
-      "flow": [
-        {
-          "step": "Profile Builder",
-          "description": "Claude extracts a structured candidate profile from raw resume text, including name, skills, visa status, seniority, salary expectations, target roles. Saves to PostgreSQL candidates table with JSONB columns for skills arrays.",
-          "technologies": [
-            "Claude API",
-            "PostgreSQL",
-            "JSONB"
-          ],
-          "metrics": [
-            "~2s extraction",
-            "Structured candidate profile",
-            "JSONB skill arrays"
-          ]
-        },
-        {
-          "step": "Job Finder",
-          "description": "Playwright opens a real browser, navigates Indeed search for the candidate's target roles and location, scrapes job postings extracting title, company, URL, description, and location. Filters out pagead tracking URLs to get only real job links.",
-          "technologies": [
-            "Playwright",
-            "Indeed",
-            "GPT-4o Vision (fallback)"
-          ],
-          "metrics": [
-            "19 real jobs scraped",
-            "Zero pagead URLs",
-            "Async browser session"
-          ]
-        },
-        {
-          "step": "Fit Scorer",
-          "description": "Claude scores each job across 5 weighted dimensions: skills_match (35%), experience_level (25%), location_fit (20%), visa_compatible (10%), salary_likely (10%). Score >= 7.0 → auto-apply, >= 5.0 → flag for review, < 5.0 → skip.",
-          "technologies": [
-            "Claude API",
-            "Weighted Scoring",
-            "asyncio batch"
-          ],
-          "metrics": [
-            "5 scoring dimensions",
-            "0–10 weighted score",
-            "14 review / 5 skip in test run"
-          ]
-        },
-        {
-          "step": "Apply Navigator",
-          "description": "Playwright clicks the \"Apply Now\" button on each qualified job's Indeed listing page, handles cookie consent banners, follows redirects, and lands on the actual ATS application form (Workday, Greenhouse, Lever, or custom).",
-          "technologies": [
-            "Playwright",
-            "Cookie handling",
-            "Multi-step navigation"
-          ],
-          "metrics": [
-            "Handles any ATS",
-            "Cookie consent automation",
-            "Error-captured screenshots"
-          ]
-        },
-        {
-          "step": "Form Reader",
-          "description": "GPT-4o Vision takes a screenshot of the application form and identifies every field: name, email, work auth, experience, custom questions. Vision-first approach handles dynamic SPAs perfectly; a DOM fallback catches cases where Vision returns empty results.",
-          "technologies": [
-            "GPT-4o Vision",
-            "Playwright screenshots",
-            "DOM fallback"
-          ],
-          "metrics": [
-            "Handles any ATS form",
-            "Vision + DOM fallback",
-            "No per-site custom code"
-          ]
-        },
-        {
-          "step": "Form Filler",
-          "description": "Maps candidate profile data to detected form fields via a field_mapper. Playwright fills each field programmatically. Tracks fields_filled vs fields_skipped per application, and a low fill rate flags when the navigator landed on the wrong page.",
-          "technologies": [
-            "Playwright",
-            "Field mapper logic",
-            "Quality tracking"
-          ],
-          "metrics": [
-            "Fields filled per app tracked",
-            "Low fill rate = quality flag",
-            "All field types supported"
-          ]
-        },
-        {
-          "step": "Cover Letter Agent",
-          "description": "Claude writes a tailored 200-word cover letter per company, referencing specific job requirements and company details. Explicitly prompted to avoid \"passionate\", \"excited\", and generic AI-sounding openers that recruiters flag.",
-          "technologies": [
-            "Claude API",
-            "Prompt engineering"
-          ],
-          "metrics": [
-            "200-word target",
-            "Company-specific content",
-            "Anti-AI-tell prompting"
-          ]
-        },
-        {
-          "step": "Live Dashboard",
-          "description": "Next.js 14 App Router frontend connects to the FastAPI backend via Server-Sent Events. MetricCards (jobs found, applied, response rate), LiveFeed (scrolling agent event log), ApplicationTable (sortable by fit score), FitScoreChart (Recharts distribution). Updates in real time without page refresh.",
-          "technologies": [
-            "Next.js 14",
-            "SSE (EventSource API)",
-            "Recharts",
-            "Tailwind CSS"
-          ],
-          "metrics": [
-            "Real-time SSE updates",
-            "Live event feed",
-            "Fit score distribution chart"
-          ]
-        }
-      ],
-      "diagram": "jobpilot"
-    },
-    "techDecisions": [
-      {
-        "decision": "Why GPT-4o Vision for form reading instead of a DOM parser?",
-        "reasoning": "Application forms vary wildly across ATS providers: Workday, Greenhouse, Lever, and custom forms all have completely different DOM structures. A DOM parser would require custom scraping logic per ATS, meaning constant maintenance as sites update. GPT-4o Vision reads any form the way a human does, so one model handles every ATS equally. The Vision-first approach with DOM fallback gives us resilience: Vision handles dynamic SPAs and rendered content; the DOM fallback catches edge cases where Vision returns empty results."
-      },
-      {
-        "decision": "Why LangGraph over plain LangChain for orchestration?",
-        "reasoning": "LangGraph's StateGraph gives explicit control over agent execution order, state persistence between nodes, and conditional routing on errors. For JobPilot, conditional edges are critical: if profile building fails, we route directly to END rather than attempting downstream steps with invalid data. Plain LangChain chains don't give you this kind of branching and error recovery. The shared AgentState TypedDict also makes the pipeline's data flow explicit and inspectable at every stage."
-      },
-      {
-        "decision": "Why Playwright over Selenium?",
-        "reasoning": "Playwright is async-native, which is essential for running concurrent browser sessions in a FastAPI async backend. It's also significantly more reliable with modern SPAs than Selenium: better screenshot APIs, network request interception, and built-in waiting for elements to be ready. Selenium's synchronous model would block the entire FastAPI event loop. For a production agent doing real browser automation in 2024, Playwright is simply the right tool."
-      },
-      {
-        "decision": "Why FastAPI with SSE instead of WebSockets?",
-        "reasoning": "Server-Sent Events (SSE) are one-directional (server → client), which is exactly what a pipeline dashboard needs. The agent pushes events; the dashboard consumes them. WebSockets add bidirectional complexity we don't need. SSE also works over standard HTTP (no protocol upgrade), making it more compatible with proxies and CDNs. FastAPI's sse-starlette integration is clean, and the browser's native EventSource API needs zero additional libraries on the frontend."
-      },
-      {
-        "decision": "Why PostgreSQL with JSONB over SQLite or MongoDB?",
-        "reasoning": "JSONB columns give us the flexibility of document storage (skills arrays, target_roles arrays) without abandoning relational structure. The jobs and applications tables have clear relational relationships (applications.job_id → jobs.id) that would be awkward in a pure document DB. SQLite lacks JSONB support and is not suitable for a multi-connection async backend. PostgreSQL also makes the migration to AWS RDS trivial when moving to production."
-      }
-    ],
-    "metrics": [
-      {
-        "metric": "Jobs Scraped per Run",
-        "value": "19 real jobs",
-        "improvement": "From a single Indeed search session"
-      },
-      {
-        "metric": "Fit Scoring Coverage",
-        "value": "100% of jobs scored",
-        "improvement": "14 review, 5 skip in first test run"
-      },
-      {
-        "metric": "Form Field Detection",
-        "value": "Any ATS supported",
-        "improvement": "GPT-4o Vision: zero per-site custom code"
-      },
-      {
-        "metric": "Cover Letter Quality",
-        "value": "200-word tailored",
-        "improvement": "Company-specific, anti-AI-tell prompting"
-      },
-      {
-        "metric": "Dashboard Latency",
-        "value": "< 100ms",
-        "improvement": "SSE events appear in real time"
-      },
-      {
-        "metric": "Pipeline Stages",
-        "value": "8 agents",
-        "improvement": "Each independently testable"
-      }
-    ],
-    "tradeoffs": [
-      {
-        "whatDidntWork": "First version used a DOM parser to detect form fields. Worked fine on simple HTML forms but completely failed on Workday and Greenhouse, because both render fields dynamically with JavaScript, and the DOM structure had nothing resembling a standard input label pattern. Spent two days writing custom selectors before switching to Vision.",
-        "whatWouldChange": "Would start Vision-first from day one rather than trying DOM parsing as the primary approach. The lesson: web scraping strategies from 2015 don't work on modern ATS platforms. Would also invest earlier in a screenshot-based test suite, making it easy to replay form reading against saved screenshots without needing a live browser session.",
-        "productionConsideration": "Production would need a screenshot caching layer (store screenshots per application for debugging), headless browser pooling (spin up N Playwright instances for concurrent applications), and rate limiting per job board to avoid IP bans. Would also implement CAPTCHA detection to pause and alert the user rather than failing silently."
-      },
-      {
-        "whatDidntWork": "The apply navigator initially tried to handle the full navigation (Indeed listing → Apply → ATS form) in a single Playwright session without checkpointing. When the ATS form took too long to load or showed a cookie banner, the whole navigation failed with no way to resume. Had to rebuild it with explicit state checkpoints at each navigation step.",
-        "whatWouldChange": "Would implement resumable navigation from the start: checkpoint the browser state after each successful navigation step and retry individual steps rather than restarting the full flow. Would also add explicit support for multi-page application forms (many ATS platforms spread the form across 3–5 pages).",
-        "productionConsideration": "Production navigation would need a distributed job queue (Celery + Redis) to handle concurrent applications across multiple companies, browser session persistence across retries, and a human-in-the-loop escalation path for applications that require manual steps (CAPTCHA, 2FA, employer-specific login). Would also build a \"sandbox mode\" that fills forms but does not submit, allowing the user to review before final submission."
-      },
-      {
-        "whatDidntWork": "The cover letter agent initially produced generic outputs because the prompt was too open-ended. The agent would write openers like \"I am passionate about AI and excited to contribute to your team\", which is exactly what recruiters flag as AI-generated. Needed several prompt iterations to get company-specific, human-sounding output.",
-        "whatWouldChange": "Would implement a cover letter evaluation loop: generate → score against anti-AI-tell criteria → regenerate if score is too low. Would also fine-tune a small classifier to detect \"AI-sounding\" phrases and add it to the generation feedback loop. Additionally, would personalize based on the candidate's actual experience rather than just the job description.",
-        "productionConsideration": "Production would A/B test cover letter templates against response rates, tracking which writing styles get more callbacks. Would implement a feedback loop where users mark applications that got responses, training a reward model on which cover letters performed best. Would also add a human review step for high-priority applications (score >= 9.0) where the user can edit before submission."
-      }
-    ]
-  },
-  {
     "id": "apex",
-    "title": "APEX: Autonomous Research Scientist",
+    "title": "APEX: Autonomous AI Research Scientist",
     "slug": "apex",
+    "links": [
+      { "label": "GitHub", "url": "https://github.com/DikshithPulakanti/Apex" }
+    ],
     "technologies": [
       "LangGraph",
       "Claude API",
+      "MCP",
       "Neo4j + GDS",
       "Weaviate",
       "Kafka",
       "PostgreSQL",
       "Redis",
-      "Next.js 14",
-      "FastAPI",
       "Hugging Face",
-      "aiohttp",
+      "FastAPI",
+      "Next.js 14",
       "Docker",
       "MLflow",
       "arXiv API"
     ],
-    "description": "A multi-agent research scientist that autonomously mines arXiv papers, maps knowledge gaps in a Neo4j graph, debates hypotheses through adversarial agent dialogue, and drafts patent-style documents, wired through 4 custom MCP servers and Kafka for full observability.",
+    "description": "A 4-agent LangGraph pipeline that gives Claude structured access to real tools through 4 custom MCP servers, mining arXiv papers into a Neo4j knowledge graph, stress-testing hypotheses through adversarial agent debate, and routing evaluation by model confidence rather than trusting output blindly.",
     "highlights": [
-      "Multi-Agent Research Pipeline",
-      "Knowledge Graph (Neo4j + GDS)",
-      "Adversarial Hypothesis Debate",
-      "Custom BERT (HypothesisValidityBERT)",
-      "Kafka Event Bus",
-      "Patent Drafting Agent"
+      "4-Agent LangGraph Pipeline",
+      "4 Custom MCP Servers",
+      "Confidence-Gated Evaluation",
+      "Hybrid RAG (Dense + BM25)",
+      "Neo4j Graph Data Science",
+      "Kafka Observability Bus"
     ],
     "problem": {
       "title": "The Problem",
       "description": "Scientific research moves faster than any human researcher can track. Thousands of papers are published on arXiv every week, and the most valuable insights (gaps between fields, untested hypotheses, patentable combinations of existing ideas) are invisible to anyone reading papers one by one. No tool automates the full loop: ingest → structure → reason → validate → draft.",
       "existingSolutions": [
-        "Semantic Scholar / connected papers show citation graphs but don't reason about gaps or generate hypotheses",
+        "Semantic Scholar and connected-papers tools show citation graphs but don't reason about gaps or generate hypotheses",
         "LLM-based summarizers read papers but can't cross-reference a structured knowledge graph of 780+ concepts",
         "Patent tools require human-written claims, and no system autonomously identifies novelty from a research corpus",
         "Research assistants like Elicit answer questions but don't run an adversarial debate to stress-test a hypothesis before committing to it"
@@ -493,11 +43,11 @@ export const projects = [
     },
     "architecture": {
       "title": "Architecture",
-      "description": "A five-layer system: arXiv scrapers feed a multi-database knowledge layer (Neo4j + Weaviate + PostgreSQL + Redis), four LangGraph agents communicate exclusively through four custom MCP servers, Kafka streams every event to the Next.js dashboard for live observability. One command triggers the full hypothesis-to-patent pipeline in ~55 seconds.",
+      "description": "A five-layer system: arXiv scrapers feed a multi-database knowledge layer (Neo4j + Weaviate + PostgreSQL + Redis), four LangGraph agents communicate exclusively through four custom MCP servers, and Kafka streams every event to the Next.js dashboard for live observability. One command triggers the full hypothesis-to-patent pipeline in ~55 seconds.",
       "flow": [
         {
           "step": "arXiv Ingestion",
-          "description": "Async aiohttp scraper queries arXiv export API across 20 APEX_QUERIES covering cs.AI, cs.LG, cs.CL, GNN+drug discovery, LLM+biology and more. Rate-limited to 0.5 req/s in pipeline mode. Papers are deduplicated via Redis (\"already processed\" ID cache) before any downstream work.",
+          "description": "Async aiohttp scraper queries the arXiv export API across 20 domain queries covering cs.AI, cs.LG, cs.CL, GNN + drug discovery, LLM + biology and more. Rate-limited to 0.5 req/s in pipeline mode. Papers are deduplicated via Redis (an \"already processed\" ID cache) before any downstream work.",
           "technologies": [
             "aiohttp",
             "arXiv API",
@@ -513,9 +63,10 @@ export const projects = [
         },
         {
           "step": "Knowledge Graph Build",
-          "description": "Papers, authors, and extracted concepts are batch-upserted into Neo4j with GDS (Graph Data Science) plugins. Concepts are embedded with all-MiniLM-L6-v2 and loaded into Weaviate for vector search. Pipeline run metadata is logged to PostgreSQL. Result: 368 authors, 780 concepts, 3984 relationships.",
+          "description": "Papers, authors, and extracted concepts are batch-upserted into Neo4j with the Graph Data Science plugin. Pagerank centrality ranks concepts so the Reasoner can prioritise structurally important nodes for relationship-aware reasoning. Concepts are embedded with all-MiniLM-L6-v2 and loaded into Weaviate. Result: 368 authors, 780 concepts, 3984 relationships.",
           "technologies": [
             "Neo4j + GDS",
+            "Pagerank",
             "Weaviate",
             "PostgreSQL",
             "sentence-transformers (MiniLM)"
@@ -524,12 +75,27 @@ export const projects = [
             "780 concepts",
             "368 authors",
             "3984 relationships",
-            "Vector + graph dual retrieval"
+            "Pagerank concept ranking"
+          ]
+        },
+        {
+          "step": "Hybrid RAG Retrieval",
+          "description": "Retrieval combines Weaviate dense vector search with BM25 sparse keyword retrieval rather than relying on embedding similarity alone. Dense search finds semantic neighbours that use different terminology; BM25 anchors on exact technical terms and rare tokens that embeddings tend to smooth over. Combining both improves precision on research queries where exact method names matter.",
+          "technologies": [
+            "Weaviate",
+            "BM25",
+            "Hybrid search",
+            "MiniLM embeddings"
+          ],
+          "metrics": [
+            "Dense + sparse fusion",
+            "Precision beyond similarity alone",
+            "Exact-term recall preserved"
           ]
         },
         {
           "step": "4 Custom MCP Servers",
-          "description": "Agents access all data exclusively through four stdio MCP servers: paper-mcp (search papers, concept neighbors, papers-by-year), graph-mcp (find gaps, create hypothesis, top concepts, list hypotheses), sim-mcp (simulation, synthetic data, validation), patent-mcp (draft patent, prior art, novelty score). Clean contract between agent logic and data layer.",
+          "description": "Agents access all data exclusively through four stdio MCP servers: paper-mcp (search papers, concept neighbours, papers-by-year), graph-mcp (find gaps, create hypothesis, top concepts, list hypotheses), sim-mcp (simulation, synthetic data, validation), and patent-mcp (draft patent, prior art, novelty score). This is a clean contract between agent logic and the data layer, and it is what gives Claude structured access to real tools rather than free-text guesses.",
           "technologies": [
             "MCP Protocol",
             "Anthropic SDK",
@@ -559,8 +125,8 @@ export const projects = [
           ]
         },
         {
-          "step": "HypothesisValidityBERT",
-          "description": "Custom fine-tuned BERT model that classifies whether a hypothesis is valid or invalid based on supporting evidence. Trained on synthetic dataset generated from the knowledge graph, tracked with MLflow, published on HuggingFace: DikshithPulakanti/HypothesisValidityBERT. Used by the Skeptic agent as a fast first-pass before invoking Claude.",
+          "step": "Confidence-Gated Evaluation",
+          "description": "A fine-tuned BERT model (HypothesisValidityBERT) classifies whether a hypothesis is supported by its evidence, and the pipeline routes on its confidence: high-confidence outputs are accepted or rejected automatically, while uncertain cases escalate to Claude for nuanced analysis. The point is that output is never trusted blindly. Tracked with MLflow, published on HuggingFace as DikshithPulakanti/HypothesisValidityBERT.",
           "technologies": [
             "BERT",
             "Hugging Face",
@@ -570,13 +136,14 @@ export const projects = [
           ],
           "metrics": [
             "~98% F1 score",
-            "HuggingFace deployed",
-            "MLflow experiment tracking"
+            "Confidence-based routing",
+            "~80% fewer Claude calls",
+            "HuggingFace deployed"
           ]
         },
         {
-          "step": "Kafka Event Bus",
-          "description": "Every agent action publishes to a Kafka topic: papers.ingested, hypothesis.created, hypothesis.validated, hypothesis.rejected, patent.drafted, agent.status. This gives full observability into the pipeline without tight coupling between agents. Zookeeper + Confluent Kafka 7.5 in Docker.",
+          "step": "Kafka Observability Bus",
+          "description": "Every agent action publishes to a Kafka topic: papers.ingested, hypothesis.created, hypothesis.validated, hypothesis.rejected, patent.drafted, agent.status. This gives full tracing and monitoring of agent behavior across the pipeline without tight coupling between agents. Zookeeper + Confluent Kafka 7.5 in Docker.",
           "technologies": [
             "Kafka",
             "Zookeeper",
@@ -586,12 +153,12 @@ export const projects = [
           "metrics": [
             "6 event topics",
             "Full agent observability",
-            "Decoupled architecture"
+            "Replayable audit trail"
           ]
         },
         {
           "step": "Next.js Dashboard",
-          "description": "App Router dashboard fetches /api/stats, /api/hypotheses, and /api/events in parallel from FastAPI. Neo4j Cypher queries power counts, hypothesis lists, and event feeds. graph.tsx renders the live knowledge graph visualization. Real-time agent status updates stream via SSE.",
+          "description": "App Router dashboard fetches /api/stats, /api/hypotheses, and /api/events in parallel from FastAPI. Neo4j Cypher queries power counts, hypothesis lists, and event feeds. A graph view renders the live knowledge graph, and agent status updates stream via SSE.",
           "technologies": [
             "Next.js 14",
             "Neo4j driver",
@@ -609,24 +176,28 @@ export const projects = [
     },
     "techDecisions": [
       {
-        "decision": "Why Neo4j + GDS over a relational DB for the knowledge graph?",
-        "reasoning": "Research knowledge is fundamentally a graph: papers cite papers, authors co-author, concepts co-occur. Finding \"gaps\" (pairs of concepts that should be connected but are not) is a graph traversal problem. In SQL, this requires multi-level self-joins that become exponentially slow as the graph grows. Neo4j's Cypher expresses \"find all concept pairs with no connecting hypothesis\" naturally. GDS adds graph analytics (centrality, community detection, path finding) that would require separate libraries in a relational setup. The combination gives us both structural queries and analytical algorithms on the same data."
+        "decision": "Why MCP servers instead of giving agents direct database access?",
+        "reasoning": "MCP turns every capability into an explicitly declared tool with a schema, which means Claude gets structured access to real tools instead of generating free-text queries and hoping they run. Each of the four servers owns one domain (papers, graph, simulation, patents), so agent logic never touches a Neo4j driver or a Weaviate client directly. That boundary is what makes agents independently testable: mocking four MCP servers is tractable, mocking four database clients embedded in agent code is not."
       },
       {
-        "decision": "Why dual retrieval (Neo4j + Weaviate) instead of just one?",
-        "reasoning": "Neo4j excels at structural/relational queries: \"which concepts are neighbors of X?\", \"which papers share authors with Y?\", \"what hypotheses exist between concept A and B?\". Weaviate handles semantic similarity: \"find papers conceptually similar to this hypothesis\". These are different retrieval modes: graph traversal vs vector proximity. Using only Neo4j would miss semantic neighbors with different terminology. Using only Weaviate would lose the structural relationships (citation chains, author networks, concept co-occurrence counts) that make gap detection possible."
+        "decision": "Why confidence-gated evaluation instead of always calling Claude?",
+        "reasoning": "The Skeptic agent evaluates dozens of hypotheses per run, and trusting an LLM verdict blindly is exactly the failure mode the agent exists to prevent. HypothesisValidityBERT runs locally in ~20ms versus ~800ms for a Claude call, so it handles the clear-cut cases and returns a confidence score. Only low-confidence hypotheses escalate to Claude. This keeps quality where it matters (ambiguous cases get the stronger model) while cutting Claude API calls by roughly 80%. The pattern generalises: a small fine-tuned model as a fast gate, a large model as the escalation path."
       },
       {
-        "decision": "Why Kafka instead of direct agent-to-agent calls or a simple event queue?",
-        "reasoning": "Kafka gives us persistent, replayable event logs, which is critical for a research pipeline where you want to audit exactly what every agent did and when. Direct calls between agents create tight coupling (Reasoner must know about Skeptic's API). A simple in-memory queue (like asyncio.Queue) loses events on restart. Kafka topics (papers.ingested, hypothesis.validated, etc.) give each pipeline stage its own observable stream. This also means the dashboard can subscribe independently without the agents needing to know about the frontend."
+        "decision": "Why hybrid retrieval (dense + BM25) instead of vector search alone?",
+        "reasoning": "Embedding similarity is good at finding conceptually related work but blurs exact technical terminology. A query about \"GraphSAGE\" will happily return generic GNN papers while missing the ones that actually name the method. BM25 handles that: rare tokens and exact method names score highly. Combining Weaviate dense search with BM25 sparse retrieval gives precision that neither achieves alone, which matters when the downstream task is novelty assessment and a false semantic neighbour becomes a wrong prior-art claim."
       },
       {
-        "decision": "Why train HypothesisValidityBERT instead of always using Claude?",
-        "reasoning": "The Skeptic agent needs to evaluate potentially dozens of hypotheses per run. Using Claude for every evaluation would cost roughly $0.01 per hypothesis. At scale across thousands of hypotheses, this becomes significant. HypothesisValidityBERT runs locally in ~20ms vs ~800ms for a Claude API call. It serves as a fast first-pass filter: hypotheses that fail the BERT classifier (low confidence) are skipped or queued for human review; only borderline cases escalate to Claude for nuanced analysis. This tiered approach reduces Claude API cost by ~80% while maintaining quality."
+        "decision": "Why Neo4j + Graph Data Science over a relational DB?",
+        "reasoning": "Research knowledge is fundamentally a graph: papers cite papers, authors co-author, concepts co-occur. Finding gaps (pairs of concepts that should be connected but are not) is a graph traversal problem that in SQL requires multi-level self-joins which become exponentially slow as the graph grows. Cypher expresses \"find all concept pairs with no connecting hypothesis\" naturally. GDS adds pagerank and community detection on the same data, so the Reasoner can prioritise structurally central concepts instead of treating all 780 nodes as equally interesting."
       },
       {
-        "decision": "Why adversarial debate (Reasoner + Skeptic) instead of a single reasoning agent?",
-        "reasoning": "Single-agent hypothesis generation suffers from confirmation bias, since the same model that generated the hypothesis tends to validate it. The adversarial architecture forces hypothesis quality through conflict: Reasoner generates the hypothesis using graph gaps, Skeptic is explicitly prompted to find counter-evidence and weaknesses, and only hypotheses that survive the Skeptic's challenge advance to the Inventor. This mirrors peer review in science. The approach measurably improves hypothesis quality vs a single agent asked to \"critically evaluate your own hypothesis\"."
+        "decision": "Why Kafka instead of direct agent-to-agent calls?",
+        "reasoning": "Kafka gives persistent, replayable event logs, which is what you need to audit exactly what every agent did and when. Direct calls between agents create tight coupling (the Reasoner would have to know about the Skeptic's interface), and an in-memory queue loses events on restart. Topic-per-stage means the dashboard subscribes independently and the agents never need to know a frontend exists."
+      },
+      {
+        "decision": "Why adversarial debate (Reasoner + Skeptic) instead of one reasoning agent?",
+        "reasoning": "Single-agent hypothesis generation suffers from confirmation bias: the same model that generated a hypothesis tends to validate it. The adversarial architecture forces quality through conflict. The Reasoner generates from graph gaps, the Skeptic is explicitly prompted to find counter-evidence, and only hypotheses that survive reach the Inventor. This mirrors peer review, and it measurably beats asking a single agent to \"critically evaluate your own hypothesis\"."
       }
     ],
     "metrics": [
@@ -641,14 +212,14 @@ export const projects = [
         "improvement": "On held-out validation set"
       },
       {
+        "metric": "Claude Call Reduction",
+        "value": "~80% fewer",
+        "improvement": "Confidence gating: BERT handles clear cases"
+      },
+      {
         "metric": "End-to-End Pipeline",
         "value": "~55 seconds",
         "improvement": "Hypothesis → patent draft (data pre-loaded)"
-      },
-      {
-        "metric": "arXiv Coverage",
-        "value": "20 domain queries",
-        "improvement": "cs.AI, cs.LG, cs.CL + cross-domain (GNN+biology, LLM+drug discovery)"
       },
       {
         "metric": "Hypotheses Generated",
@@ -663,403 +234,794 @@ export const projects = [
     ],
     "tradeoffs": [
       {
-        "whatDidntWork": "First version of the Skeptic agent was prompted with \"evaluate this hypothesis critically\", but it was using the same Claude model that generated the hypothesis, with no structural separation. The Skeptic consistently agreed with the Reasoner, making the debate loop pointless. Had to separate the agents with different system prompts, different context windows (Skeptic gets only the hypothesis + graph evidence, not the Reasoner's chain of thought), and different temperature settings.",
-        "whatWouldChange": "Would implement a proper adversarial training setup: generate a dataset of hypothesis-counterargument pairs, fine-tune a dedicated Skeptic model rather than relying on prompt engineering alone. Would also add a \"debate round limit\", since the agents can currently loop indefinitely if no consensus is reached. A maximum of 3 debate rounds with forced escalation to human review prevents infinite loops.",
-        "productionConsideration": "Production would need a human-in-the-loop step before patent drafting. The Inventor's output is good enough for prior art search and novelty scoring, but not for actual patent filing without expert review. Would integrate with USPTO patent search API for real prior art validation, implement versioned hypothesis storage (hypotheses evolve across debate rounds), and add a \"confidence calibration\" layer so the system knows when to defer to human judgment."
+        "whatDidntWork": "The first Skeptic agent was simply prompted to \"evaluate this hypothesis critically\", using the same Claude model that generated the hypothesis with no structural separation. It consistently agreed with the Reasoner, which made the debate loop pointless. Fixing it meant separating the agents properly: different system prompts, different context windows (the Skeptic sees only the hypothesis plus graph evidence, never the Reasoner's chain of thought), and different temperature settings.",
+        "whatWouldChange": "Would build a proper adversarial training setup: generate a dataset of hypothesis-counterargument pairs and fine-tune a dedicated Skeptic model rather than relying on prompt engineering alone. Would also add a debate round limit, since the agents can currently loop if no consensus is reached. Three rounds with forced escalation to human review prevents that.",
+        "productionConsideration": "Production would need a human-in-the-loop step before patent drafting. The Inventor's output is good enough for prior art search and novelty scoring, but not for actual filing without expert review. Would integrate the USPTO patent search API for real prior art validation, store hypotheses versioned across debate rounds, and add confidence calibration so the system knows when to defer to human judgment."
       },
       {
-        "whatDidntWork": "arXiv rate limiting caused silent failures in early versions. The standalone scraper defaulted to 3.0 req/s, which got the IP temporarily blocked by the export API. Batch runs would silently return empty results after the first few hundred papers, with no error, just nothing. Only discovered the issue by checking Redis and noticing the processed-paper count stopped growing.",
-        "whatWouldChange": "Would implement explicit HTTP 429 detection with exponential backoff rather than a fixed rate limit. Would also add scraping health monitoring (papers-per-minute metric to Kafka) so rate limit issues surface immediately in the dashboard instead of silently corrupting the dataset. For production scale, would distribute scraping across multiple IPs/proxies with proper attribution.",
-        "productionConsideration": "Production ingestion would use the official Semantic Scholar API (which has higher rate limits and better structured data than the arXiv export API) as the primary source, with arXiv as a fallback. Would add incremental ingestion (only new papers since last run via date filtering) rather than re-scraping the full corpus each time. Would also implement paper deduplication by DOI across multiple sources, not just by arXiv ID."
+        "whatDidntWork": "arXiv rate limiting caused silent failures in early versions. The standalone scraper defaulted to 3.0 req/s, which got the IP temporarily blocked by the export API. Batch runs would return empty results after the first few hundred papers with no error at all, just nothing. I only found it by checking Redis and noticing the processed-paper count had stopped growing.",
+        "whatWouldChange": "Would implement explicit HTTP 429 detection with exponential backoff rather than a fixed rate limit, and publish a papers-per-minute metric to Kafka so ingestion stalls surface in the dashboard immediately instead of silently corrupting the dataset. For production scale, would distribute scraping across multiple IPs with proper attribution.",
+        "productionConsideration": "Production ingestion would use the Semantic Scholar API as the primary source (higher rate limits, better structured data) with arXiv as fallback. Would add incremental ingestion by date filter rather than re-scraping the full corpus, and deduplicate by DOI across sources instead of by arXiv ID alone."
       },
       {
-        "whatDidntWork": "The docker-compose setup with 7 services (Neo4j, Weaviate, Postgres, Redis, Kafka, Zookeeper, app) had startup ordering issues: the app container would start before Neo4j was ready to accept connections, causing the pipeline to fail on first run. The Dockerfile CMD points to main.py which only verifies environment, not the actual LangGraph pipeline, so this was a silent issue for new contributors.",
-        "whatWouldChange": "Would add explicit health checks and depends_on conditions in docker-compose so the app container waits for all DBs to be healthy before starting. Would also replace main.py as the Dockerfile entrypoint with a proper init script that runs schema migrations, seeds the Agent nodes, and confirms connectivity to all services before declaring the container ready. The current requirements.txt (only python-dotenv) is also misleading. We would add a full pinned requirements.txt generated from the actual runtime.",
-        "productionConsideration": "Production would deploy on Kubernetes with separate deployments for the agent workers and the API server, using init containers for DB readiness checks. Would migrate from docker-compose Kafka to AWS MSK (managed Kafka) to avoid operational overhead. Would use AWS Neptune or AuraDB (managed Neo4j) instead of self-hosted Neo4j to eliminate the GDS plugin management burden."
+        "whatDidntWork": "The docker-compose setup with 7 services (Neo4j, Weaviate, Postgres, Redis, Kafka, Zookeeper, app) had startup ordering issues. The app container would start before Neo4j was accepting connections, so the pipeline failed on first run. Because the Dockerfile entrypoint only verifies environment variables rather than exercising the pipeline, this stayed invisible to new contributors.",
+        "whatWouldChange": "Would add explicit health checks and depends_on conditions so the app waits for every database to be healthy, and replace the entrypoint with an init script that runs schema migrations, seeds the Agent nodes, and confirms connectivity before declaring the container ready. Would also ship a fully pinned requirements.txt generated from the actual runtime rather than the minimal one currently checked in.",
+        "productionConsideration": "Production would run on Kubernetes with separate deployments for agent workers and the API server, using init containers for DB readiness. Would move from docker-compose Kafka to AWS MSK and from self-hosted Neo4j to AuraDB to eliminate GDS plugin management overhead."
       }
     ]
   },
   {
-    "id": "movie-semantic-search",
-    "title": "Movie Semantic Search",
-    "slug": "movie-semantic-search",
-    "technologies": [
-      "Yolov8",
-      "OpenCV",
-      "AWS Rekognition",
-      "GPT-2",
-      "PyTorch",
-      "Hugging Face",
-      "MMAction2"
+    "id": "ai-dynamic-pricing",
+    "title": "AI Dynamic Pricing: Shopify Agent",
+    "slug": "ai-dynamic-pricing",
+    "links": [
+      { "label": "GitHub", "url": "https://github.com/DikshithPulakanti/ai-dynamic-pricing" }
     ],
-    "description": "An AI-powered video search system that enables semantic search through movie content using computer vision and NLP.",
+    "technologies": [
+      "LangGraph.js",
+      "Gemini",
+      "Next.js",
+      "TypeScript",
+      "Vercel",
+      "BullMQ",
+      "Railway",
+      "Shopify Admin GraphQL API",
+      "Shopify OAuth",
+      "Vitest",
+      "Playwright"
+    ],
+    "description": "An AI pricing agent wired into a real Shopify store through OAuth and the Admin GraphQL API, where deterministic safety limits sit outside the LLM so pricing bounds can't be reasoned around, and every live price write waits for human approval that is re-validated at the moment it is granted.",
     "highlights": [
-      "Computer Vision",
-      "NLP Integration",
-      "Real-time Processing",
-      "High Accuracy Models"
+      "Real Shopify OAuth Integration",
+      "Deterministic Safety Limits",
+      "Human-in-the-Loop Writes",
+      "Stale-Approval Protection",
+      "Background Job Workers",
+      "Tested Against Live Infra"
     ],
     "problem": {
       "title": "The Problem",
-      "description": "Traditional video search systems rely on metadata tags and manual annotations, making it impossible to find specific scenes, actors, or emotional moments within movies.",
+      "description": "An AI agent that changes prices on a live storefront is one bad inference away from real financial damage. Most demos avoid that problem by never touching a real store: they mock the commerce API, skip OAuth, and show an agent \"deciding\" a price with nothing at stake. The interesting engineering problem is the opposite one, which is how you let an LLM propose prices against a real Shopify store while making it structurally impossible for it to set a price outside its allowed bounds.",
       "existingSolutions": [
-        "Metadata-based search only works if content is manually tagged",
-        "Keyword search fails for visual concepts (e.g., \"sad sunset scene\")",
-        "No way to search by actor appearance without IMDb-style databases",
-        "Emotion-based search was non-existent"
+        "Mocked integrations prove the prompt works but never exercise OAuth, scopes, rate limits, or the failures that only appear against a real Admin API",
+        "Putting pricing bounds in the system prompt makes them a suggestion, because anything expressed in natural language can be argued with",
+        "Fully autonomous pricing agents have no approval gate, so a single bad inference reaches the storefront",
+        "Approval flows that validate bounds only at proposal time will happily apply a stale approval after the underlying conditions have changed"
       ]
     },
     "architecture": {
       "title": "Architecture",
-      "description": "End-to-end pipeline combining computer vision, NLP, and vector search for semantic video retrieval.",
+      "description": "A LangGraph.js agent runs on a Next.js app deployed to Vercel, authenticated against a real Shopify store via OAuth and reading and writing through the Admin GraphQL API. Pricing decisions pass through a deterministic guard layer that lives outside the model, then queue for human approval. A BullMQ worker on Railway handles background processing, and the whole flow is verified with Vitest and Playwright against live infrastructure rather than mocks.",
       "flow": [
         {
-          "step": "Input",
-          "description": "Raw video frames extracted at 1fps. Preprocessing includes frame extraction, resolution normalization, and quality filtering.",
+          "step": "Shopify OAuth",
+          "description": "A real Shopify OAuth flow installs the app on a merchant store and exchanges the grant for an access token with explicitly scoped permissions. This is not a mocked connection: the agent operates against an actual store, which means scopes, token handling, and install/uninstall lifecycle all have to be correct before any pricing logic matters.",
           "technologies": [
-            "OpenCV",
-            "FFmpeg"
+            "Shopify OAuth",
+            "Next.js API routes",
+            "Scoped access tokens"
           ],
           "metrics": [
-            "1fps extraction rate",
-            "1080p resolution"
+            "Real store install flow",
+            "Explicitly scoped permissions",
+            "No mocked connection"
           ]
         },
         {
-          "step": "Scene Segmentation",
-          "description": "OpenCV + similarity metrics (92% accuracy). Uses histogram comparison and feature matching to detect scene boundaries.",
+          "step": "Admin GraphQL API",
+          "description": "Product, variant, and price data is read and written through the Shopify Admin GraphQL API. Using GraphQL rather than REST keeps reads tightly scoped to the fields the agent actually reasons over, which matters both for Shopify's cost-based rate limiting and for keeping the model's context small and relevant.",
           "technologies": [
-            "OpenCV",
-            "Histogram Comparison"
+            "Shopify Admin GraphQL API",
+            "TypeScript",
+            "Cost-based rate limiting"
           ],
           "metrics": [
-            "92% accuracy",
-            "< 50ms per frame"
+            "Field-scoped reads",
+            "Mutation-based price writes",
+            "Rate-limit aware"
           ]
         },
         {
-          "step": "Actor Recognition",
-          "description": "YOLOv8 CNN with 19x augmentation (96% accuracy). Real-time detection across 18 actors with high precision.",
+          "step": "LangGraph.js Reasoning",
+          "description": "A LangGraph.js graph orchestrates the pricing agent with Gemini as the reasoning model. The agent analyses product and pricing context and proposes a price change with its rationale. Everything it produces is treated as a proposal, never as an action: the graph has no path that writes directly to the store.",
           "technologies": [
-            "YOLOv8",
-            "PyTorch",
-            "Data Augmentation"
+            "LangGraph.js",
+            "Gemini",
+            "TypeScript"
           ],
           "metrics": [
-            "96% accuracy",
-            "30+ FPS",
-            "18 actors"
+            "Proposals, never direct writes",
+            "Stateful graph execution",
+            "Rationale attached to each proposal"
           ]
         },
         {
-          "step": "Caption Generation",
-          "description": "GPT-2 fine-tuned on movie scripts. Generates contextual captions for each scene segment.",
+          "step": "Deterministic Safety Limits",
+          "description": "Pricing bounds are enforced in plain code outside the LLM, not described to it in a prompt. A proposal that falls outside the allowed range is rejected by the guard layer regardless of how convincing the model's reasoning is. This separation is the core design choice: the model gets to be creative about what price to suggest, and it gets no say in what price is permitted.",
           "technologies": [
-            "GPT-2",
-            "Hugging Face",
-            "Fine-tuning"
+            "TypeScript validators",
+            "Bounds enforcement",
+            "Guard layer"
           ],
           "metrics": [
-            "BLEU score: 0.42",
-            "512 token context"
+            "Bounds enforced in code",
+            "Not promptable or negotiable",
+            "Rejection independent of model output"
           ]
         },
         {
-          "step": "Emotion Detection",
-          "description": "AWS Rekognition facial analysis. Detects emotions, expressions, and scene mood.",
+          "step": "Human Approval Gate",
+          "description": "No price reaches the live store without explicit human approval. Critically, the bounds are re-validated fresh at the moment approval is granted rather than trusting the validation done when the proposal was created. That closes the stale-approval hole where a proposal sits in a queue, the underlying conditions shift, and an approval click applies a price that is no longer valid.",
           "technologies": [
-            "AWS Rekognition",
-            "Facial Analysis"
+            "Approval queue",
+            "Re-validation at approval time",
+            "Next.js UI"
           ],
           "metrics": [
-            "7 emotion classes",
-            "Real-time processing"
+            "Human approval before every write",
+            "Bounds re-checked at approval",
+            "Stale approvals blocked"
           ]
         },
         {
-          "step": "Embeddings",
-          "description": "CLIP embeddings for visual-text alignment. Creates joint embedding space for semantic search.",
+          "step": "BullMQ Worker on Railway",
+          "description": "Background work (pricing analysis runs, queued jobs, and post-approval writes) is handled by a BullMQ worker deployed on Railway, separate from the Vercel-hosted app. Keeping the worker off the request path means a long analysis run never blocks a user request, and job state survives a redeploy of the frontend.",
           "technologies": [
-            "CLIP",
-            "OpenAI",
-            "Embeddings"
+            "BullMQ",
+            "Redis",
+            "Railway"
           ],
           "metrics": [
-            "768-dim vectors",
-            "Zero-shot capability"
+            "Off-request-path processing",
+            "Durable job queue",
+            "Independent worker deploys"
           ]
         },
         {
-          "step": "Vector DB",
-          "description": "FAISS index for similarity search. HNSW index type for fast approximate nearest neighbor search.",
+          "step": "Live-Infrastructure Testing",
+          "description": "Vitest covers unit and integration behavior and Playwright drives the end-to-end flow, both run against live infrastructure rather than mocks. That is deliberate: the failures that actually break this system (OAuth scope gaps, rate-limit responses, GraphQL mutation rejections) only reproduce against the real Admin API and surfaced exactly because the tests were not mocked.",
           "technologies": [
-            "FAISS",
-            "HNSW Index"
+            "Vitest",
+            "Playwright",
+            "Live Shopify store"
           ],
           "metrics": [
-            "< 10ms search",
-            "1M+ vectors"
-          ]
-        },
-        {
-          "step": "Output",
-          "description": "Ranked results with relevance scores. Combines multiple signals (visual, text, emotion) for final ranking.",
-          "technologies": [
-            "Ranking Algorithm",
-            "Score Fusion"
-          ],
-          "metrics": [
-            "Top-10 results",
-            "Relevance score > 0.8"
+            "E2E against real infra",
+            "Catches production-only failures",
+            "No mocked commerce layer"
           ]
         }
       ],
-      "diagram": "movie-semantic-search"
+      "diagram": "ai-dynamic-pricing"
     },
     "techDecisions": [
       {
-        "decision": "Why FAISS over Pinecone?",
-        "reasoning": "FAISS provides better control over indexing strategies (IVF, HNSW) and allows local deployment. Pinecone is great for production but adds latency and cost. For research, FAISS offers more flexibility to experiment with different index types and quantization methods."
+        "decision": "Why keep safety limits outside the LLM instead of in the prompt?",
+        "reasoning": "Anything expressed in natural language is negotiable. A bound stated in a system prompt is a strong suggestion that a sufficiently confident chain of reasoning can talk its way past, and the failure is silent because the model will explain why the exception is justified. Implementing bounds as deterministic code means the guard layer does not read the model's argument at all: it compares numbers and rejects. The model stays useful for the part it is good at, which is proposing a price and explaining why, and has no authority over what is permitted."
       },
       {
-        "decision": "Why CLIP vs BLIP?",
-        "reasoning": "CLIP excels at zero-shot visual-text alignment without requiring task-specific fine-tuning. BLIP is better for detailed captioning but CLIP's joint embedding space enables semantic search across modalities. For movie search, CLIP's pre-trained knowledge of visual concepts (actors, scenes, emotions) was more valuable than BLIP's generative capabilities."
+        "decision": "Why re-validate bounds at approval time rather than at proposal time?",
+        "reasoning": "A proposal and its approval are separated by human latency, and the world moves in between. If bounds are checked only when the proposal is created, an approval granted an hour later applies a decision that was validated against conditions that no longer hold. Re-running the check fresh at the moment of approval makes the approval a statement about now rather than about when the queue entry was written. It also means a stale queue is harmless: old proposals simply fail their re-check instead of quietly writing bad prices."
       },
       {
-        "decision": "Why chunk size = 512?",
-        "reasoning": "Empirically tested chunk sizes (256, 512, 1024). 512 tokens balances context preservation (scene descriptions need ~400-500 tokens) with retrieval precision. Smaller chunks lose context, larger chunks dilute relevance signals. 512 aligns with GPT-2's optimal context window for caption generation."
+        "decision": "Why require human approval at all for an \"autonomous\" agent?",
+        "reasoning": "Price is a financial commitment to a customer, and an incorrect one is visible publicly and immediately. The approval gate is not a hedge against the model being weak, it is an acknowledgement that the blast radius of a wrong write is larger than the convenience of a fully automatic one. The agent still does all the work: it monitors, analyses, proposes, and explains. A human only confirms the irreversible step, which is the correct division of labour for any agent whose actions are hard to undo."
       },
       {
-        "decision": "Why YOLOv8 over Faster R-CNN?",
-        "reasoning": "YOLOv8 provides real-time inference (30+ FPS) vs Faster R-CNN's slower but more accurate detection. For video processing at scale, speed matters. YOLOv8 with proper augmentation achieved 96% accuracy, which was sufficient for our use case while maintaining throughput."
+        "decision": "Why real Shopify OAuth and the Admin GraphQL API instead of a mock?",
+        "reasoning": "A mocked commerce layer validates the prompt and nothing else. The problems that actually matter here are integration problems: which OAuth scopes the mutation requires, how Shopify's cost-based rate limiting behaves under a batch of reads, what a rejected price mutation returns, and how token lifecycle interacts with an uninstall. None of those reproduce against a mock. Building on the real API from the start meant those failures showed up during development instead of after deployment."
+      },
+      {
+        "decision": "Why a BullMQ worker on Railway alongside a Vercel-hosted app?",
+        "reasoning": "Pricing analysis is bursty and slow relative to a web request, and it should not share a lifecycle with the frontend. BullMQ gives a durable Redis-backed queue with retries, so a job survives a failed attempt or a redeploy. Running the worker on Railway rather than as a Vercel function keeps it a long-lived process with its own scaling and logs, while the Next.js app on Vercel stays a thin, fast surface for OAuth callbacks, the dashboard, and the approval UI."
+      },
+      {
+        "decision": "Why LangGraph.js instead of a single Gemini call?",
+        "reasoning": "The pricing flow is multi-step with explicit state: gather product context, analyse, propose, hand off to the guard layer, queue for approval. A single call collapses all of that into one opaque inference with no inspectable intermediate state. LangGraph.js makes each stage a node with typed state between them, which means a proposal can be traced back through exactly what the agent saw. Staying in TypeScript also keeps the agent in the same codebase and type system as the Shopify client and the guard layer, so the bounds the guard enforces and the bounds the UI displays are the same types."
       }
     ],
     "metrics": [
       {
-        "metric": "Scene Segmentation Accuracy",
-        "value": "92%",
-        "improvement": "+15% vs baseline"
+        "metric": "Live Price Writes Without Approval",
+        "value": "Zero",
+        "improvement": "Human approval gate on every write"
       },
       {
-        "metric": "Actor Recognition Accuracy",
-        "value": "96%",
-        "improvement": "Across 18 actors"
+        "metric": "Bounds Enforcement",
+        "value": "Deterministic code",
+        "improvement": "Outside the LLM, not promptable"
       },
       {
-        "metric": "Semantic Retrieval Precision",
-        "value": "40% improvement",
-        "improvement": "vs keyword search"
+        "metric": "Approval Validation",
+        "value": "Re-checked at approval",
+        "improvement": "Stale approvals blocked"
       },
       {
-        "metric": "Query Latency",
-        "value": "< 500ms",
-        "improvement": "End-to-end search"
+        "metric": "Shopify Integration",
+        "value": "Real OAuth + Admin GraphQL",
+        "improvement": "No mocked commerce layer"
       },
       {
-        "metric": "False Positive Rate",
-        "value": "8%",
-        "improvement": "Down from 25%"
-      }
-    ],
-    "tradeoffs": [
-      {
-        "whatDidntWork": "Initial approach used BLIP for captioning, but it was too slow for real-time search. Switched to GPT-2 with pre-computed captions.",
-        "whatWouldChange": "With more time, I'd implement a hybrid retrieval system combining dense (CLIP) and sparse (BM25) retrieval for better recall. Also, fine-tuning CLIP on movie-specific data would improve domain adaptation.",
-        "productionConsideration": "Production would require distributed processing pipeline (Apache Airflow), Redis caching for frequent queries, and CDN for video frame storage. Would implement A/B testing framework for continuous model improvement."
+        "metric": "Test Coverage Surface",
+        "value": "Vitest + Playwright",
+        "improvement": "Run against live infrastructure"
       },
       {
-        "whatDidntWork": "First version used Pinecone, but the API rate limits became a bottleneck during development. Local FAISS was more suitable for iteration.",
-        "whatWouldChange": "For production, I'd use a managed vector DB (Pinecone/Qdrant) with proper caching layers. The current FAISS setup requires manual sharding for scale.",
-        "productionConsideration": "Would migrate to managed vector DB (Qdrant Cloud) with automatic scaling, implement Redis cache layer for hot queries, and add monitoring (Prometheus/Grafana) for latency tracking."
-      },
-      {
-        "whatDidntWork": "Emotion detection using AWS Rekognition had inconsistent results for non-frontal faces. Had to add fallback logic.",
-        "whatWouldChange": "Would train a custom emotion detection model on movie frames with better handling of profile/side views. Current AWS solution is a compromise for speed.",
-        "productionConsideration": "Would deploy custom emotion model via TensorFlow Serving on GPU instances, implement batch processing for cost efficiency, and add confidence thresholds for quality control."
+        "metric": "Background Processing",
+        "value": "BullMQ on Railway",
+        "improvement": "Durable queue, off the request path"
       }
     ]
   },
   {
-    "id": "driver-behavior-analysis",
-    "title": "Driver Behaviour Analysis",
-    "slug": "driver-behavior-analysis",
-    "technologies": [
-      "CNN",
-      "RNN",
-      "Signal Processing",
-      "Spark ML",
-      "TensorFlow Serving",
-      "PyTorch Lightning",
-      "AWS/GCP"
+    "id": "cloudscale",
+    "title": "CloudScale: Multi-Cloud Infrastructure as Code",
+    "slug": "cloudscale",
+    "links": [
+      { "label": "Application Repo", "url": "https://github.com/DikshithPulakanti/webapp_for" },
+      { "label": "Infrastructure Repo", "url": "https://github.com/DikshithPulakanti/tf-infra" }
     ],
-    "description": "A comprehensive system for analyzing driver behavior using sensor data and deep learning models.",
+    "technologies": [
+      "Terraform",
+      "AWS",
+      "GCP",
+      "GitHub Actions",
+      "Packer",
+      "FastAPI",
+      "SQLAlchemy 2.0",
+      "Pydantic",
+      "PostgreSQL (RDS)",
+      "Lambda",
+      "SNS",
+      "SES",
+      "DynamoDB",
+      "KMS",
+      "CloudWatch",
+      "StatsD",
+      "Newman/Postman",
+      "pytest"
+    ],
+    "description": "A highly available, multi-tier cloud environment defined entirely as code across 70+ Terraform resources on AWS with a parallel GCP stack, fronted by a FastAPI service and shipped by a CI/CD pipeline that bakes golden images and refreshes the autoscaling group on every merge.",
     "highlights": [
-      "Hybrid Deep Learning",
-      "Real-time Inference",
-      "Big Data Processing",
-      "Anomaly Detection"
+      "70+ Terraform Resources",
+      "Multi-Cloud (AWS + GCP)",
+      "Golden Image CI/CD",
+      "Customer-Managed KMS Keys",
+      "Event-Driven Email Pipeline",
+      "Custom CloudWatch Metrics"
     ],
     "problem": {
       "title": "The Problem",
-      "description": "Traditional telematics systems only detect hard braking or acceleration events. They miss subtle patterns of risky driving (aggressive cornering, rapid lane changes) that don't trigger threshold-based alerts.",
+      "description": "Most application projects treat infrastructure as a deployment detail: a hand-clicked EC2 instance, a security group opened wider than it should be, and a database whose configuration exists only in someone's console history. That works until you need a second environment, an audit trail, or a rebuild after something breaks. This project inverts the priority and treats the infrastructure itself as the deliverable: every network boundary, key, alarm, and scaling policy is code, reviewable and reproducible from scratch.",
       "existingSolutions": [
-        "Threshold-based systems miss nuanced risky behaviors",
-        "Rule-based approaches can't detect complex patterns",
-        "No way to predict risky behavior before it happens",
-        "Existing ML solutions don't handle temporal sequences well"
+        "Console-provisioned infrastructure has no version history, so there is no way to review a change or roll one back",
+        "A single-tier deployment puts the application and database in the same blast radius with no private subnet isolation",
+        "Default AWS-managed encryption keys give no control over rotation policy or key-level access boundaries",
+        "Deploying by SSHing into a running instance means the running fleet and the image it came from drift apart immediately"
       ]
     },
     "architecture": {
       "title": "Architecture",
-      "description": "Hybrid CNN-RNN architecture processing accelerometer and gyroscope streams for real-time behavior classification.",
+      "description": "A multi-tier AWS environment provisioned as code across 70+ Terraform resources: a custom VPC with public and private subnets, an application load balancer fronting a CPU-driven autoscaling group, RDS in private subnets, and S3, SNS, SES, Lambda, DynamoDB, Route 53, and ACM wired in around it. A parallel GCP stack runs alongside. GitHub Actions tests, bakes a Packer golden image, applies Terraform, and triggers an ASG instance refresh on every merge.",
       "flow": [
         {
-          "step": "Input",
-          "description": "Accelerometer/Gyroscope streams (100Hz). Real-time sensor data from mobile devices or IoT sensors.",
+          "step": "Network Foundation",
+          "description": "A custom VPC with public and private subnets across availability zones, route tables, internet and NAT egress, and security groups scoped per tier. The load balancer sits in public subnets, application instances and RDS sit private, and each security group allows only the specific port and source it needs rather than a shared permissive group.",
           "technologies": [
-            "Sensor Data",
-            "IoT"
+            "Terraform",
+            "AWS VPC",
+            "Subnets",
+            "Route tables",
+            "Security groups"
           ],
           "metrics": [
-            "100Hz sampling",
-            "6-axis data"
+            "Multi-AZ subnets",
+            "Private data tier",
+            "Per-tier security groups"
           ]
         },
         {
-          "step": "Preprocessing",
-          "description": "Noise filtering, normalization. Kalman filtering for noise reduction and standardization.",
+          "step": "Compute and Autoscaling",
+          "description": "An application load balancer distributes traffic to an autoscaling group with CPU-driven scaling policies, so the fleet grows and shrinks with load instead of being sized for a guess at peak. Health checks let the ASG replace unhealthy instances without manual intervention, which is what makes the tier genuinely highly available rather than just redundant on paper.",
           "technologies": [
-            "Kalman Filter",
-            "Signal Processing"
+            "AWS ALB",
+            "Auto Scaling Group",
+            "CloudWatch alarms",
+            "Launch templates"
           ],
           "metrics": [
-            "Noise reduction: 40%",
-            "< 5ms processing"
+            "CPU-driven autoscaling",
+            "Health-check replacement",
+            "Multi-AZ distribution"
           ]
         },
         {
-          "step": "Feature Extraction",
-          "description": "CNN for spatial patterns. Extracts features from acceleration/gyroscope vectors.",
+          "step": "FastAPI Application",
+          "description": "A REST API of roughly 2,200 lines built on FastAPI with SQLAlchemy 2.0 for persistence against RDS, Pydantic models for request and response validation at the boundary, and bcrypt-hashed basic authentication. Validation lives in the schema layer rather than scattered through handlers, so a malformed request is rejected before it reaches business logic.",
           "technologies": [
-            "CNN",
-            "PyTorch"
+            "FastAPI",
+            "SQLAlchemy 2.0",
+            "Pydantic",
+            "bcrypt",
+            "PostgreSQL (RDS)"
           ],
           "metrics": [
-            "128-dim features",
-            "Spatial patterns"
+            "~2,200 lines of code",
+            "Schema-level validation",
+            "bcrypt password hashing"
           ]
         },
         {
-          "step": "Sequence Modeling",
-          "description": "LSTM/GRU for temporal dependencies. Captures driving pattern evolution over time.",
+          "step": "Encryption and Key Management",
+          "description": "Four customer-managed KMS keys with 90-day automatic rotation cover the separate encryption domains rather than relying on AWS-managed defaults. Customer-managed keys are the difference between \"the data is encrypted\" and being able to state and enforce a rotation policy and key-level access boundary per domain.",
           "technologies": [
-            "LSTM",
-            "GRU",
-            "RNN"
+            "AWS KMS",
+            "Customer-managed keys",
+            "Key rotation policies",
+            "Terraform"
           ],
           "metrics": [
-            "Sequence length: 50",
-            "Temporal patterns"
+            "4 customer-managed keys",
+            "90-day auto-rotation",
+            "Per-domain key separation"
           ]
         },
         {
-          "step": "Anomaly Detection",
-          "description": "Autoencoder for outlier detection. Identifies unusual driving behaviors not in training data.",
+          "step": "Event-Driven Email Pipeline",
+          "description": "User-facing email is decoupled from the request path: the API publishes to SNS, a Lambda function consumes the topic, and SES sends the message, with DynamoDB tracking delivery state. The API never waits on an email provider, so a slow or failing SES call degrades notifications rather than the request that triggered them.",
           "technologies": [
-            "Autoencoder",
-            "Anomaly Detection"
+            "AWS SNS",
+            "AWS Lambda",
+            "AWS SES",
+            "DynamoDB"
           ],
           "metrics": [
-            "F1 score: 0.89",
-            "Unseen patterns"
+            "API → SNS → Lambda → SES",
+            "Async, off the request path",
+            "Delivery state tracked"
           ]
         },
         {
-          "step": "Classification",
-          "description": "Hybrid CNN-RNN model. Combines spatial and temporal features for final risk classification.",
+          "step": "CI/CD with Golden Images",
+          "description": "GitHub Actions runs pytest and a Newman/Postman API suite, then Packer bakes a golden machine image with the application already installed, Terraform applies the infrastructure change, and the autoscaling group performs an instance refresh onto the new image. Deployment is therefore a fleet replacement rather than an in-place update, which keeps the running instances identical to a versioned artifact.",
           "technologies": [
-            "Hybrid Model",
-            "CNN-RNN"
+            "GitHub Actions",
+            "Packer",
+            "Terraform",
+            "pytest",
+            "Newman/Postman"
           ],
           "metrics": [
-            "94% accuracy",
-            "5 risk categories"
+            "Fully automated pipeline",
+            "Golden image per release",
+            "ASG instance refresh"
           ]
         },
         {
-          "step": "Output",
-          "description": "Risk score + behavior category. Real-time inference with sub-200ms latency.",
+          "step": "Observability",
+          "description": "Custom application metrics are emitted through StatsD into CloudWatch alongside the infrastructure metrics AWS provides by default. That means API-level signals (endpoint timing and call counts) sit next to CPU and ALB metrics in the same place the autoscaling alarms read from, instead of application behavior being invisible to the layer that scales it.",
           "technologies": [
-            "TensorFlow Serving"
+            "StatsD",
+            "CloudWatch",
+            "Custom metrics",
+            "CloudWatch alarms"
           ],
           "metrics": [
-            "< 200ms latency",
-            "Risk score 0-1"
+            "Custom app metrics via StatsD",
+            "Unified with infra metrics",
+            "Alarm-driven scaling"
+          ]
+        },
+        {
+          "step": "DNS, TLS and Parallel GCP Stack",
+          "description": "Route 53 handles DNS and ACM provisions and renews TLS certificates for the load balancer, both managed in Terraform so a domain change is a reviewable commit. A parallel stack on GCP runs alongside the AWS environment, which forced the Terraform to be structured around provider-agnostic module boundaries rather than assuming AWS primitives everywhere.",
+          "technologies": [
+            "Route 53",
+            "AWS ACM",
+            "GCP",
+            "Terraform modules"
+          ],
+          "metrics": [
+            "TLS provisioned as code",
+            "Parallel GCP environment",
+            "Provider-agnostic module design"
           ]
         }
       ],
-      "diagram": "driver-behavior-analysis"
+      "diagram": "cloudscale"
     },
     "techDecisions": [
       {
-        "decision": "Why CNN-RNN hybrid vs Transformer?",
-        "reasoning": "CNNs excel at extracting spatial patterns from sensor data (acceleration vectors, gyroscope orientations). RNNs capture temporal dependencies (how driving patterns evolve). Transformers would work but require more data and compute. CNN-RNN hybrid is more interpretable and efficient for this use case."
+        "decision": "Why customer-managed KMS keys instead of AWS-managed defaults?",
+        "reasoning": "AWS-managed keys encrypt the data but leave no room to state a policy. You cannot control the rotation schedule, you cannot scope key usage per domain, and you cannot point at a key policy during a review and show who is allowed to decrypt what. Four customer-managed keys with 90-day rotation give each encryption domain its own key, its own policy, and its own rotation guarantee. It is more Terraform to maintain, and it is the difference between encryption as a checkbox and encryption as something you can actually describe and enforce."
       },
       {
-        "decision": "Why PyTorch Lightning vs raw PyTorch?",
-        "reasoning": "Lightning provides structure for training loops, logging, and distributed training. For this project, it accelerated development and made hyperparameter tuning easier. The abstraction doesn't hide important details but reduces boilerplate."
+        "decision": "Why golden images with ASG instance refresh instead of deploying to running instances?",
+        "reasoning": "Deploying onto running instances means the fleet immediately diverges from any known artifact, and a newly scaled instance boots from an older image than the one serving traffic. Baking the application into a Packer image makes the image the unit of release: every instance in the group is provably identical, an instance refresh rolls the fleet forward, and a rollback is redeploying the previous image ID rather than reversing a script. It costs bake time on every merge, which buys the guarantee that what is running is exactly what was tested."
       },
       {
-        "decision": "Why TensorFlow Serving vs TorchServe?",
-        "reasoning": "TensorFlow Serving has better production tooling (monitoring, versioning, A/B testing). For deployment on AWS/GCP, TF Serving integrates better with existing infrastructure. Model conversion was straightforward."
+        "decision": "Why SNS → Lambda → SES instead of sending email from the API?",
+        "reasoning": "Sending email inline couples request latency to a third-party service and makes a transient SES failure into a failed user request. Publishing to SNS hands off in milliseconds and lets a Lambda consumer own the actual delivery, with retries handled outside the request lifecycle and DynamoDB tracking state. The API's job is to record that an email should be sent; making sure it arrives is a separate concern with a separate failure mode."
       },
       {
-        "decision": "Why Spark ML for preprocessing?",
-        "reasoning": "Processing millions of sensor readings requires distributed computing. Spark ML handles feature engineering at scale. For real-time inference, we use lightweight preprocessing, but Spark is essential for batch processing and model training on large datasets."
+        "decision": "Why a parallel GCP stack rather than AWS only?",
+        "reasoning": "Building the same environment twice on different providers is the only way to find out which parts of the Terraform were genuinely infrastructure and which were AWS-shaped assumptions leaking into module interfaces. The second stack forced the module boundaries to be about roles (network, compute, data, secrets) rather than about specific AWS resource types. It also means the architecture is described in a way that survives a provider decision changing, which is a different property from just having a backup cloud."
+      },
+      {
+        "decision": "Why custom StatsD metrics when CloudWatch already provides infrastructure metrics?",
+        "reasoning": "CloudWatch's default metrics describe the machines, not the application. CPU utilisation tells you the instance is busy; it does not tell you which endpoint got slow or whether request volume shifted. Emitting application counters and timers through StatsD into CloudWatch puts both layers in one place, so the autoscaling alarms and the application signals are queried from the same source. Without that, you end up diagnosing an API regression from infrastructure graphs, which is guesswork."
+      },
+      {
+        "decision": "Why Pydantic validation at the boundary instead of checks inside handlers?",
+        "reasoning": "Validation scattered across handlers drifts: one endpoint checks a field, the next forgets, and the contract exists only in whichever code path you happen to read. Pydantic models make the request and response shape a declaration that FastAPI enforces before a handler runs, so a malformed request never reaches business logic and the same models generate the API documentation. Combined with SQLAlchemy 2.0's typed queries, the data shape is checked at the HTTP boundary and at the database boundary rather than trusted in between."
       }
     ],
     "metrics": [
       {
-        "metric": "Detection Accuracy",
-        "value": "94%",
-        "improvement": "Risky driving classification"
+        "metric": "Terraform Resources",
+        "value": "70+",
+        "improvement": "Entire environment defined as code"
       },
       {
-        "metric": "Inference Latency",
-        "value": "< 200ms",
-        "improvement": "Real-time processing"
+        "metric": "KMS Keys",
+        "value": "4 customer-managed",
+        "improvement": "90-day automatic rotation"
       },
       {
-        "metric": "Training Time Reduction",
-        "value": "35% faster",
-        "improvement": "vs baseline"
+        "metric": "FastAPI Service",
+        "value": "~2,200 lines",
+        "improvement": "SQLAlchemy 2.0 + Pydantic validation"
       },
       {
-        "metric": "False Positive Rate",
-        "value": "6%",
-        "improvement": "Down from 18%"
+        "metric": "Cloud Providers",
+        "value": "AWS + GCP",
+        "improvement": "Parallel stacks, shared module design"
       },
       {
-        "metric": "Anomaly Detection F1",
-        "value": "0.89",
-        "improvement": "Unseen behavior patterns"
+        "metric": "Deployment",
+        "value": "Golden image + ASG refresh",
+        "improvement": "Fleet matches a versioned artifact"
+      },
+      {
+        "metric": "Pipeline Gates",
+        "value": "pytest + Newman",
+        "improvement": "API suite runs before every apply"
+      }
+    ]
+  },
+  {
+    "id": "eventease",
+    "title": "EventEase: Event Booking Platform",
+    "slug": "eventease",
+    "links": [
+      { "label": "GitHub", "url": "https://github.com/pavan-garlapati/EventEase-V1" }
+    ],
+    "technologies": [
+      "React 18",
+      "Bootstrap 5",
+      "Node.js",
+      "Express",
+      "MongoDB",
+      "Mongoose",
+      "JWT",
+      "Bcrypt",
+      "Docker",
+      "Kubernetes",
+      "AWS EC2",
+      "Azure"
+    ],
+    "description": "A full-stack event management and ticket booking platform with JWT authentication and role-based access control across User, Organizer, and Admin roles, deployed as containerized microservices on both AWS and Azure.",
+    "highlights": [
+      "Full-Stack MERN",
+      "Role-Based Access Control",
+      "JWT Authentication",
+      "Containerized Microservices",
+      "Multi-Cloud Deployment"
+    ],
+    "problem": {
+      "title": "The Problem",
+      "description": "An event platform has three fundamentally different users sharing one dataset. Attendees browse and book, organizers create and manage their own events, and admins oversee everything. Getting that wrong is not a UI problem, it is an authorization problem: an organizer must not edit another organizer's event, and an attendee must not reach organizer endpoints by guessing a URL. The interesting work is enforcing those boundaries in the API rather than only hiding buttons in the frontend.",
+      "existingSolutions": [
+        "Hiding controls in the UI without enforcing roles server-side leaves every endpoint reachable by a direct request",
+        "A single user type forces organizer tooling and attendee browsing into the same permission surface",
+        "Session-based auth complicates horizontal scaling once the API runs as multiple containerized replicas",
+        "Storing credentials without a proper hash makes a database read equivalent to a full account compromise"
+      ]
+    },
+    "architecture": {
+      "title": "Architecture",
+      "description": "A React 18 single-page frontend consumes a REST API built on Node.js and Express, backed by MongoDB through Mongoose. Authentication is stateless via JWT with bcrypt-hashed credentials, and authorization middleware enforces the User, Organizer, and Admin boundary on every protected route. The services are containerized with Docker and orchestrated with Kubernetes across AWS EC2 and Azure.",
+      "flow": [
+        {
+          "step": "React Frontend",
+          "description": "A React 18 single-page application styled with Bootstrap 5, handling event browsing, filtering, and the booking flow. State for the authenticated session drives which views and controls are available, while the actual permission decision always belongs to the API.",
+          "technologies": [
+            "React 18",
+            "Bootstrap 5",
+            "REST client"
+          ],
+          "metrics": [
+            "Event browsing and filtering",
+            "Ticket booking flow",
+            "Role-aware UI"
+          ]
+        },
+        {
+          "step": "Express REST API",
+          "description": "Node.js and Express expose the REST endpoints the frontend consumes: event CRUD, search and filtering, and booking operations. Routes are grouped by resource with authentication and authorization applied as middleware, so a new endpoint inherits the protection of its route group rather than re-implementing checks.",
+          "technologies": [
+            "Node.js",
+            "Express",
+            "REST"
+          ],
+          "metrics": [
+            "Resource-grouped routes",
+            "Middleware-applied auth",
+            "JSON API contract"
+          ]
+        },
+        {
+          "step": "JWT Authentication",
+          "description": "Login issues a signed JWT carrying the user's identity and role, and passwords are stored as bcrypt hashes rather than recoverable values. Because the token is self-contained, any API replica can verify a request without shared session state, which is what makes running multiple containerized instances behind a load balancer straightforward.",
+          "technologies": [
+            "JWT",
+            "Bcrypt",
+            "Stateless auth"
+          ],
+          "metrics": [
+            "Stateless token verification",
+            "bcrypt-hashed credentials",
+            "Role carried in claims"
+          ]
+        },
+        {
+          "step": "Role-Based Access Control",
+          "description": "Three roles with distinct scopes: a User browses and books, an Organizer creates and manages their own events, and an Admin oversees the platform. Authorization middleware checks the role claim and, where relevant, ownership of the target resource, so the boundary is enforced server-side on every protected route instead of relying on the frontend to hide actions.",
+          "technologies": [
+            "Express middleware",
+            "Role claims",
+            "Ownership checks"
+          ],
+          "metrics": [
+            "3 roles: User / Organizer / Admin",
+            "Enforced server-side",
+            "Ownership-scoped writes"
+          ]
+        },
+        {
+          "step": "MongoDB Data Layer",
+          "description": "MongoDB with Mongoose models the events, users, and bookings. Mongoose schemas add structure and validation on top of a document store, which keeps event documents flexible (varying metadata per event type) while still rejecting malformed writes at the model layer.",
+          "technologies": [
+            "MongoDB",
+            "Mongoose",
+            "Schema validation"
+          ],
+          "metrics": [
+            "Schema-validated documents",
+            "Flexible event metadata",
+            "Indexed lookups for filtering"
+          ]
+        },
+        {
+          "step": "Containerized Deployment",
+          "description": "The services are packaged as Docker containers and orchestrated with Kubernetes, deployed across AWS EC2 and Azure. Containerizing the API and frontend separately means each scales and redeploys on its own, and running the same manifests on two providers keeps the deployment from depending on provider-specific glue.",
+          "technologies": [
+            "Docker",
+            "Kubernetes",
+            "AWS EC2",
+            "Azure"
+          ],
+          "metrics": [
+            "Independently scalable services",
+            "Same manifests on two clouds",
+            "Stateless replicas"
+          ]
+        }
+      ],
+      "diagram": "eventease"
+    },
+    "techDecisions": [
+      {
+        "decision": "Why JWT instead of server-side sessions?",
+        "reasoning": "The deployment target was multiple containerized replicas behind a load balancer, and server-side sessions would have required either sticky routing or a shared session store, both of which add a stateful dependency to an otherwise stateless API. A signed JWT carries identity and role in the token itself, so any replica can verify a request independently. The tradeoff is that revoking a token before expiry needs deliberate handling rather than deleting a session row, which is the cost of buying horizontal scalability."
+      },
+      {
+        "decision": "Why enforce roles in API middleware rather than in the frontend?",
+        "reasoning": "The frontend decides what to show; it cannot decide what is allowed. Any endpoint is reachable with a direct HTTP request regardless of which buttons the UI renders, so role checks that live only in React are cosmetic. Putting authorization in Express middleware means the boundary is enforced at the one place every request must pass, and grouping routes by resource lets a new endpoint inherit the protection of its group instead of depending on someone remembering to add a check."
+      },
+      {
+        "decision": "Why MongoDB with Mongoose rather than a relational database?",
+        "reasoning": "Event documents vary in shape: different event types carry different metadata, and forcing that into a fixed relational schema means either sparse columns or a join-heavy attribute table. A document store fits the data naturally. Mongoose then adds back the part a bare document store lacks, which is structure: schemas validate writes at the model layer so flexibility does not become a licence for malformed documents. The relationships here (bookings referencing events and users) are shallow enough that losing relational joins was not a meaningful constraint."
+      },
+      {
+        "decision": "Why bcrypt for password storage?",
+        "reasoning": "Bcrypt is deliberately slow and salted per password, which is exactly what a credential hash needs to be. A fast general-purpose hash like SHA-256 lets an attacker with a stolen database test billions of candidates cheaply, and an unsalted hash makes precomputed tables viable across accounts. Bcrypt's tunable work factor means the cost of verifying one login stays negligible while the cost of a large offline attack stays high."
+      },
+      {
+        "decision": "Why Docker and Kubernetes for a project this size?",
+        "reasoning": "Containerizing forced the services to be genuinely stateless and configuration-driven, which is what made the JWT decision pay off and what allowed the same artifacts to run on both AWS and Azure without provider-specific changes. Kubernetes is more orchestration than a small platform strictly needs, and the reason to use it here was that the deployment target was two different clouds: declarative manifests describe the desired state once rather than being reimplemented per provider."
       }
     ],
-    "tradeoffs": [
+    "metrics": [
       {
-        "whatDidntWork": "Initial model used only accelerometer data. Missed cornering patterns that gyroscope captures better.",
-        "whatWouldChange": "Would add GPS data for context (highway vs city driving) and implement multi-modal fusion more effectively. Also, add weather/road condition features for better context.",
-        "productionConsideration": "Production would require real-time sensor data ingestion (Kafka), feature store (Feast), and edge deployment (TensorFlow Lite). Would implement A/B testing for model variants and real-time alerting for risky behavior."
+        "metric": "Access Control Roles",
+        "value": "3 roles",
+        "improvement": "User / Organizer / Admin, enforced server-side"
       },
       {
-        "whatDidntWork": "First version processed data in 1-second windows. Too short for detecting aggressive lane changes.",
-        "whatWouldChange": "Would implement adaptive window sizing based on driving context. Also, add attention mechanisms to focus on critical time segments rather than fixed windows.",
-        "productionConsideration": "Would use sliding window approach with overlap, implement streaming processing (Apache Flink), and add anomaly detection for edge cases. Would deploy models via TensorFlow Serving with auto-scaling."
+        "metric": "Authentication",
+        "value": "Stateless JWT",
+        "improvement": "Any replica verifies without shared state"
       },
       {
-        "whatDidntWork": "Deployed model had higher latency than expected due to preprocessing overhead.",
-        "whatWouldChange": "Would optimize preprocessing pipeline and consider model quantization for edge deployment. Also, implement model ensembling for better accuracy at the cost of latency.",
-        "productionConsideration": "Would implement model quantization (INT8), use TensorRT for GPU acceleration, and add preprocessing caching. Would deploy lightweight model on edge devices and heavy model in cloud for batch processing."
+        "metric": "Credential Storage",
+        "value": "bcrypt hashed",
+        "improvement": "Salted, tunable work factor"
+      },
+      {
+        "metric": "Deployment Targets",
+        "value": "AWS EC2 + Azure",
+        "improvement": "Same containers and manifests on both"
+      }
+    ]
+  },
+  {
+    "id": "medfind",
+    "title": "MedFind: Federated Medical Imaging Search Network",
+    "slug": "medfind",
+    "links": [
+      { "label": "GitHub", "url": "https://github.com/pjsk02/TOA-HealthHack-MedFind" }
+    ],
+    "technologies": [
+      "Python",
+      "FastAPI",
+      "JWT (HS256)",
+      "k-anonymity",
+      "httpx (async)",
+      "Role-based access control"
+    ],
+    "description": "A federated search network that lets three independent hospital nodes answer medical imaging queries without pooling patient data, built at the Red Hat-sponsored TOA Health Hack where it took 1st place. My individual contribution was the gateway-level privacy module: k-anonymity suppression and role-based aggregation that prevent re-identification across nodes.",
+    "context": "Built at TOA Health Hack, a Red Hat-sponsored healthcare hackathon, where the project won 1st place. This was a team project. The gateway-level privacy module (k-anonymity suppression and role-based aggregation) was my individual contribution; the broader distributed search gateway spanning three hospital nodes was a team effort.",
+    "highlights": [
+      "1st Place, TOA Health Hack",
+      "Gateway-Level Privacy Module",
+      "k-Anonymity Suppression (k=5)",
+      "Role-Based Aggregation",
+      "Federated Across 3 Nodes",
+      "Async Inter-Node Search"
+    ],
+    "problem": {
+      "title": "The Problem",
+      "description": "Hospitals hold imaging data that is far more useful in aggregate than in isolation, and they cannot legally or ethically pool it. Federated search is the obvious answer: query each institution in place and combine the answers. The hard part is that aggregate results are not automatically anonymous. A count small enough to describe a single patient re-identifies them, and a researcher who can query across three nodes can triangulate with a series of narrow queries that each look harmless on their own.",
+      "existingSolutions": [
+        "Centralising imaging data into one warehouse is the approach federation exists specifically to avoid",
+        "Returning raw aggregate counts leaks identity whenever a cohort is small enough to describe one person",
+        "Per-node access control alone does not stop cross-node triangulation, because each node only sees its own slice of the query pattern",
+        "Enforcing privacy inside each hospital node separately means the guarantee is only as strong as the least carefully configured node"
+      ]
+    },
+    "architecture": {
+      "title": "Architecture",
+      "description": "A FastAPI gateway fans a single query out to three independent hospital nodes over async httpx, then passes every response through a privacy layer before anything reaches the caller. JWT (HS256) carries identity and role, and the gateway applies k-anonymity suppression and role-based aggregation so results are scoped and de-identified at the boundary rather than trusted from the nodes. The privacy module was my individual contribution; the surrounding distributed gateway was a team effort.",
+      "flow": [
+        {
+          "step": "Distributed Search Gateway",
+          "description": "A single FastAPI gateway accepts a query and fans it out to three independent hospital nodes using async httpx, so the round trip is bounded by the slowest node rather than their sum. Each node searches its own data in place and returns only aggregates. This layer was built collaboratively as a team; I contributed to the gateway and inter-node communication design.",
+          "technologies": [
+            "FastAPI",
+            "httpx (async)",
+            "Federated fan-out"
+          ],
+          "metrics": [
+            "3 independent hospital nodes",
+            "Concurrent async fan-out",
+            "No raw data leaves a node"
+          ]
+        },
+        {
+          "step": "Authentication and Identity",
+          "description": "JWT signed with HS256 carries the caller's identity and role through the gateway to every downstream request. Because the role travels with the token, the privacy layer and the nodes evaluate the same claim rather than inferring permission from network position or a separate lookup.",
+          "technologies": [
+            "JWT (HS256)",
+            "FastAPI dependencies"
+          ],
+          "metrics": [
+            "Signed role claims",
+            "Identity propagated to nodes",
+            "Single source of permission truth"
+          ]
+        },
+        {
+          "step": "k-Anonymity Suppression (my contribution)",
+          "description": "The privacy module I implemented enforces k-anonymity with k=5 at the gateway: any result group describing fewer than five individuals is suppressed rather than returned. This is what stops re-identification across federated nodes, because the attack is not reading one record, it is narrowing a query until the aggregate describes exactly one person. Suppressing below the threshold makes that narrowing return nothing instead of an answer.",
+          "technologies": [
+            "k-anonymity",
+            "Suppression thresholds",
+            "Python"
+          ],
+          "metrics": [
+            "k = 5 threshold",
+            "Small groups suppressed, not rounded",
+            "Applied before any response leaves the gateway"
+          ]
+        },
+        {
+          "step": "Role-Based Aggregation (my contribution)",
+          "description": "Also part of the privacy module: role-based access control paired with role-based aggregation, so the granularity of a result depends on the caller's role and each hospital node's visibility is limited to its own authorized scope. A caller does not simply get fewer rows, they get results aggregated at a coarser level, which keeps the boundary meaningful rather than something a differently-shaped query can work around.",
+          "technologies": [
+            "RBAC",
+            "Role-based aggregation",
+            "Scope enforcement"
+          ],
+          "metrics": [
+            "Granularity scoped by role",
+            "Per-node visibility limited to own scope",
+            "Coarser aggregation, not just filtered rows"
+          ]
+        },
+        {
+          "step": "Gateway-Level Enforcement",
+          "description": "Both privacy mechanisms run at the gateway, on the merged response, rather than inside each node. That placement is the design point: a node can only reason about its own slice, so per-node enforcement cannot see the cross-node combination that actually enables triangulation. Enforcing at the single point where all three responses meet makes the guarantee hold for the network, not just per institution.",
+          "technologies": [
+            "FastAPI middleware",
+            "Response post-processing"
+          ],
+          "metrics": [
+            "One enforcement point",
+            "Covers cross-node combination",
+            "Guarantee independent of node config"
+          ]
+        }
+      ],
+      "diagram": "medfind"
+    },
+    "techDecisions": [
+      {
+        "decision": "Why enforce k-anonymity at the gateway instead of inside each hospital node?",
+        "reasoning": "A node can only apply a threshold to its own slice of the answer. Three nodes each returning a legally-sized group can still combine into something that describes a single patient, and no individual node has the information to notice. The gateway is the one place the full merged result exists, so it is the only place a network-wide guarantee can actually be enforced. It also means the privacy property does not depend on every institution configuring its node correctly, which matters when nodes are independently operated."
+      },
+      {
+        "decision": "Why k=5 as the suppression threshold?",
+        "reasoning": "k-anonymity guarantees that any returned group is indistinguishable among at least k individuals, so k directly sets how small a cohort a query can resolve. k=5 is a standard threshold in health data release practice: large enough that a returned aggregate cannot be pinned to one person even with outside knowledge, small enough that genuine research queries still return useful results. A lower k makes narrow queries re-identifying, and a much higher k suppresses so aggressively that the federated search stops answering real questions."
+      },
+      {
+        "decision": "Why suppress small groups rather than round or perturb the counts?",
+        "reasoning": "Rounding a count of one to zero or five still tells the caller a matching record exists, and noise added independently per query can be averaged away by repeating similar queries. Suppression removes the group from the response entirely, so a narrowing attack gets an absence of data rather than a noisy signal to triangulate against. For this threat model, where the adversary is a legitimate authenticated user issuing many narrow queries, withholding is the honest primitive: a perturbed answer is still an answer."
+      },
+      {
+        "decision": "Why role-based aggregation rather than only role-based filtering?",
+        "reasoning": "Filtering rows by role controls what a caller sees but not what they can infer. A caller restricted to a subset of records can still combine permitted narrow queries to reconstruct detail they were never meant to reach. Tying aggregation granularity to role means a lower-privilege caller receives genuinely coarser results, so the detail simply is not present in the response to be recombined. Pairing it with per-node scope limits keeps each hospital's visibility to its own authorized data at the same time."
+      },
+      {
+        "decision": "Why async httpx for inter-node communication?",
+        "reasoning": "A federated query is three independent network calls whose latency is dominated by waiting. Issuing them concurrently with async httpx bounds the response time by the slowest node instead of the sum of all three, which is the difference between a usable search and one that gets slower with every institution that joins. It also fits FastAPI's async model directly, so the gateway is not blocking an event loop thread per outstanding node request. This was part of the team-built gateway layer."
+      }
+    ],
+    "metrics": [
+      {
+        "metric": "Hackathon Result",
+        "value": "1st place",
+        "improvement": "Red Hat-sponsored TOA Health Hack"
+      },
+      {
+        "metric": "Anonymity Threshold",
+        "value": "k = 5",
+        "improvement": "Groups below threshold suppressed entirely"
+      },
+      {
+        "metric": "Federated Nodes",
+        "value": "3 hospitals",
+        "improvement": "Searched in place, no data pooling"
+      },
+      {
+        "metric": "Enforcement Point",
+        "value": "Gateway-level",
+        "improvement": "Covers cross-node re-identification"
+      },
+      {
+        "metric": "Authentication",
+        "value": "JWT HS256",
+        "improvement": "Signed role claims propagated to nodes"
       }
     ]
   }

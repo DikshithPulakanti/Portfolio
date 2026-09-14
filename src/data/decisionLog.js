@@ -1,238 +1,312 @@
 export const decisionLog = [
   {
-    id: 'mcp-over-direct-api',
-    title: 'Why MCP Protocol over direct API calls?',
-    date: 'Mar 2026',
-    context: 'Foresight (12 agents, 6 external services) and APEX (4 agents, 4 data sources). Both needed agents to call external tools without coupling agent logic to service implementations.',
-    decision: 'Anthropic Model Context Protocol (MCP)',
-    alternatives: ['Direct API calls per agent', 'LangChain tool wrappers', 'Custom RPC layer'],
+    id: 'mcp-over-direct-data-access',
+    title: 'Why MCP servers instead of giving agents direct data access?',
+    date: 'Jan 2026',
+    context: 'APEX has 4 LangGraph agents reading and writing across Neo4j, Weaviate, PostgreSQL, and Redis. The agents needed structured access to real tools without agent logic reaching directly into a database driver.',
+    decision: '4 custom MCP servers (Model Context Protocol)',
+    alternatives: ['Direct database clients inside each agent', 'LangChain tool wrappers', 'Custom internal RPC layer'],
     reasoning: [
+      {
+        factor: 'Structured tool access',
+        explanation: 'Every capability is declared as a tool with a schema, so Claude calls a typed interface instead of generating a free-text query and hoping it executes. Malformed calls fail at the protocol boundary rather than producing a plausible but wrong answer.'
+      },
       {
         factor: 'Testability',
-        explanation: 'Each MCP server can be tested in isolation. With direct API calls, unit testing an agent requires mocking 6 external services simultaneously. With MCP, you mock one server interface.'
+        explanation: 'Mocking 4 MCP servers is tractable. Mocking 4 database clients embedded inside agent code is not, because the coupling means you cannot exercise agent reasoning without standing up the data layer.'
       },
       {
-        factor: 'Swappability',
-        explanation: 'Switching from Plaid to a different bank data provider only changes one MCP server, not every agent that touches financial data. Direct calls would require modifying agent code throughout.'
+        factor: 'Domain ownership',
+        explanation: 'Each server owns one domain: paper-mcp for search, graph-mcp for gaps and hypotheses, sim-mcp for validation, patent-mcp for drafting and novelty. A change to how gaps are computed touches one server, not every agent that asks about gaps.'
       },
       {
-        factor: 'Explicit contracts',
-        explanation: 'Every tool is declared with a schema. Agents know exactly what inputs and outputs look like. This catches integration errors at definition time rather than at runtime.'
-      },
-      {
-        factor: 'Observability',
-        explanation: 'All tool calls flow through a single protocol layer. Logging, rate limiting, and tracing can be added to the MCP layer once rather than per-agent.'
+        factor: 'One place for cross-cutting concerns',
+        explanation: 'All tool calls pass through a single protocol layer, so logging, rate limiting, and tracing are implemented once at the boundary instead of repeated per agent.'
       }
     ],
     tradeoffs: {
-      pros: ['Clean agent/service separation', 'Easy to test', 'Swappable backends', 'Explicit schemas'],
-      cons: ['Additional abstraction layer to maintain', 'More upfront design work', 'Slight latency overhead per call']
+      pros: ['Clean agent and data separation', 'Independently testable agents', 'Explicit typed schemas', 'Single place for logging and limits'],
+      cons: ['An extra abstraction layer to maintain', 'More upfront design work', 'Small latency overhead per call']
     },
-    productionConsideration: 'In production, MCP servers would each get their own rate limiting, circuit breakers, and retry logic. The protocol boundary makes these infrastructure concerns fully independent of agent business logic.'
+    productionConsideration: 'In production each MCP server would get its own rate limiting, circuit breaker, and retry policy. The protocol boundary is what makes those infrastructure concerns independent of agent business logic, so a failing data source degrades one tool rather than cascading through the pipeline.'
   },
   {
-    id: 'langgraph-over-langchain',
-    title: 'Why LangGraph over plain LangChain or AutoGen?',
-    date: 'Mar 2026',
-    context: 'All three multi-agent projects (Foresight, JobPilot, APEX) needed reliable multi-step agent orchestration with error recovery and conditional routing.',
-    decision: 'LangGraph',
-    alternatives: ['Plain LangChain chains', 'AutoGen', 'Custom asyncio orchestration'],
+    id: 'confidence-gated-evaluation',
+    title: 'Why confidence-gated evaluation instead of always calling the LLM?',
+    date: 'Jan 2026',
+    context: 'APEX\'s Skeptic agent evaluates dozens of hypotheses per run. Calling Claude for every evaluation is slow and costly, and accepting a single LLM verdict without a check is exactly the failure mode the Skeptic exists to prevent.',
+    decision: 'Fine-tuned BERT as a confidence gate, Claude as the escalation path',
+    alternatives: ['Claude for every evaluation', 'BERT only, no escalation', 'Rule-based validity heuristics'],
     reasoning: [
       {
-        factor: 'Conditional routing',
-        explanation: 'LangGraph StateGraph supports conditional edges: if the Profile Builder fails in JobPilot, the pipeline routes directly to END instead of attempting downstream steps with invalid data. Plain chains have no built-in branching.'
-      },
-      {
-        factor: 'Explicit state',
-        explanation: 'The shared AgentState TypedDict makes every pipeline\'s data flow inspectable at every stage. With AutoGen\'s conversation model, state is implicit in message history and hard to inspect or debug.'
-      },
-      {
-        factor: 'Parallel fan-out',
-        explanation: 'APEX\'s Advisor agent runs 4 sub-agents concurrently via asyncio.gather within the graph. LangGraph supports this natively. AutoGen\'s sequential conversation model would have required significant custom code.'
-      },
-      {
-        factor: 'Predictability',
-        explanation: 'AutoGen agents can negotiate their own execution order, which introduces unpredictability in financial or research pipelines where deterministic behavior matters. LangGraph execution order is explicit.'
-      }
-    ],
-    tradeoffs: {
-      pros: ['Explicit execution order', 'Built-in error routing', 'Parallel fan-out support', 'Inspectable shared state'],
-      cons: ['More boilerplate than simple LangChain chains', 'Graph design requires upfront thinking', 'Less flexible for conversational agents']
-    },
-    productionConsideration: 'For production, would add LangSmith tracing to every node for full agent call visibility. LangGraph\'s graph structure maps cleanly to LangSmith\'s trace hierarchy, making debugging significantly easier than with flat chains.'
-  },
-  {
-    id: 'bert-over-claude-classification',
-    title: 'Why fine-tune BERT instead of prompting Claude for classification?',
-    date: 'Feb 2026',
-    context: 'Foresight needed to classify every bank transaction into spending categories. APEX needed to validate every hypothesis. Both ran at high frequency where per-call LLM costs would compound.',
-    decision: 'Fine-tuned BERT (SpendingCategoryBERT + HypothesisValidityBERT)',
-    alternatives: ['Claude API for every classification', 'GPT-3.5-turbo with few-shot prompts', 'Rule-based classifiers'],
-    reasoning: [
-      {
-        factor: 'Cost at scale',
-        explanation: 'Claude costs roughly $0.003 per transaction classification. At 1000 transactions/month per user, that is $3/month/user just for categorization. SpendingCategoryBERT runs at effectively zero marginal cost after training. 99.8% cheaper per call.'
+        factor: 'Routing, not replacing',
+        explanation: 'HypothesisValidityBERT returns a confidence score alongside its classification. High-confidence cases are decided automatically; only uncertain ones escalate to Claude. The small model is a router, not a cheaper substitute for judgment.'
       },
       {
         factor: 'Latency',
-        explanation: 'Local BERT inference takes roughly 5ms. A Claude API call takes 500ms minimum. For real-time transaction feeds, 100x latency difference changes the user experience entirely.'
+        explanation: 'Local BERT inference runs in roughly 20ms against roughly 800ms for a Claude API call. At dozens of hypotheses per run, that difference is the gap between an interactive pipeline and a batch job.'
       },
       {
-        factor: 'Consistency',
-        explanation: 'LLM prompting produces inconsistent outputs for structured classification, especially with edge cases like ambiguous merchant names. Fine-tuned BERT is deterministic given the same input.'
+        factor: 'Cost at volume',
+        explanation: 'Gating cuts Claude calls by roughly 80%. The expensive model is spent only on the ambiguous cases where nuanced reasoning actually changes the outcome.'
       },
       {
-        factor: 'Synthetic data generation',
-        explanation: 'Used Claude Haiku to generate 50,000 synthetic training examples for SpendingCategoryBERT. This gave the best of both worlds: LLM intelligence at data generation time, BERT efficiency at inference time.'
+        factor: 'Never trusting output blindly',
+        explanation: 'The architectural point is that model output is checked before it is acted on. Uncertainty is treated as a signal to escalate rather than something to paper over with a confident-sounding answer.'
       }
     ],
     tradeoffs: {
-      pros: ['99.8% cost reduction', '100x faster inference', 'Consistent outputs', 'No API dependency at runtime'],
-      cons: ['Upfront training cost and time', 'Requires retraining when categories change', 'Less flexible than prompting for novel inputs']
+      pros: ['~80% fewer LLM calls', '~40x faster on the common path', 'Explicit uncertainty handling', 'Deterministic on clear-cut cases'],
+      cons: ['Upfront training and dataset generation cost', 'Needs retraining as the hypothesis distribution shifts', 'Threshold tuning is an empirical exercise']
     },
-    productionConsideration: 'Would implement a confidence threshold: transactions below 80% confidence escalate to Claude for review rather than being misclassified silently. This hybrid approach captures the cost benefits of BERT while using Claude as a safety net for genuinely ambiguous cases.'
+    productionConsideration: 'Production would add confidence calibration so the threshold reflects real accuracy rather than raw softmax scores, plus monitoring of the escalation rate. A rising escalation rate is an early signal that the input distribution has drifted away from the training data.'
   },
   {
-    id: 'vision-over-dom-parsing',
-    title: 'Why GPT-4o Vision over DOM parsing for form reading?',
-    date: 'Feb 2026',
-    context: 'JobPilot needed to read and fill application forms across Workday, Greenhouse, Lever, and hundreds of custom ATS platforms. Initial approach used a DOM parser.',
-    decision: 'GPT-4o Vision (screenshot-based), with DOM fallback',
-    alternatives: ['DOM parsing per ATS', 'Selenium with custom selectors', 'Pre-built ATS API integrations'],
+    id: 'safety-limits-outside-llm',
+    title: 'Why keep pricing safety limits outside the LLM instead of in the prompt?',
+    date: 'Apr 2026',
+    context: 'The AI Dynamic Pricing agent proposes prices for a real Shopify store through the Admin GraphQL API. A price outside its allowed range is a real financial and customer-facing mistake, not a bad demo output.',
+    decision: 'Deterministic bounds enforced in code, separate from model reasoning',
+    alternatives: ['Bounds described in the system prompt', 'Post-hoc LLM self-check', 'Fine-tuning the model on acceptable ranges'],
     reasoning: [
       {
-        factor: 'ATS diversity',
-        explanation: 'There are over 200 ATS platforms. Each has completely different DOM structure. A DOM parser would require custom selector logic per platform, meaning the system breaks every time a platform updates its UI.'
+        factor: 'Prompts are negotiable',
+        explanation: 'Anything expressed in natural language can be argued with. A bound stated in a system prompt is a strong suggestion that a confident chain of reasoning can talk its way past, and the failure is silent because the model explains why the exception is justified.'
       },
       {
-        factor: 'Dynamic SPAs',
-        explanation: 'Workday and Greenhouse render fields with JavaScript. By the time a DOM parser runs, the actual input elements may not exist yet. Vision reads the rendered page exactly as a human sees it.'
+        factor: 'The guard does not read the argument',
+        explanation: 'The validation layer compares numbers and rejects. It has no access to the model\'s rationale, so a more persuasive rationale cannot change the outcome. That asymmetry is the whole point.'
       },
       {
-        factor: 'Zero maintenance',
-        explanation: 'Vision-based reading requires no updates when ATS platforms redesign their UI. One model handles every form layout without code changes.'
+        factor: 'Clear division of authority',
+        explanation: 'The model decides what price to suggest and why, which is what it is good at. It has no say in what price is permitted. Creativity and authority are deliberately separated.'
       },
       {
-        factor: 'Graceful fallback',
-        explanation: 'DOM fallback handles cases where Vision returns empty results (rare but it happens). The two-layer approach gives resilience without sacrificing the primary Vision advantage.'
+        factor: 'Auditability',
+        explanation: 'A rejection is traceable to a specific rule with a specific threshold. With prompt-based limits, explaining why a bad price got through means reconstructing an inference, which is not an audit trail.'
       }
     ],
     tradeoffs: {
-      pros: ['Works on any ATS without custom code', 'Zero maintenance when UIs change', 'Handles dynamic SPAs', 'Reads exactly what the user sees'],
-      cons: ['GPT-4o Vision API cost per screenshot', 'Slightly slower than DOM parsing', 'Dependent on API availability']
+      pros: ['Bounds cannot be reasoned around', 'Deterministic and reviewable', 'Failures are traceable to a rule', 'Independent of model or prompt changes'],
+      cons: ['Rules must be maintained separately from the agent', 'Less flexible for legitimate edge cases', 'Rejections can look opaque to the model, which cannot see why']
     },
-    productionConsideration: 'Production would cache screenshots per application for debugging and re-processing. Would also implement headless browser pooling so multiple applications can be processed in parallel without each waiting for a browser to free up.'
+    productionConsideration: 'Production would version the bound definitions and log every rejection with the proposal that triggered it. A high rejection rate is useful signal: either the model is miscalibrated for this catalogue or the bounds are too tight for real pricing conditions.'
+  },
+  {
+    id: 'revalidate-at-approval',
+    title: 'Why re-validate pricing bounds at approval time rather than at proposal time?',
+    date: 'Apr 2026',
+    context: 'Every live price write in the pricing agent waits for human approval. A proposal and its approval are separated by human latency, which can be minutes or hours.',
+    decision: 'Re-run bounds validation fresh at the moment approval is granted',
+    alternatives: ['Trust the validation done at proposal time', 'Expire proposals after a fixed TTL', 'Skip approval and rely on bounds alone'],
+    reasoning: [
+      {
+        factor: 'The world moves between the two events',
+        explanation: 'If bounds are checked only when the proposal is created, an approval granted an hour later applies a decision validated against conditions that no longer hold. The approval click is about now, so the check has to be about now too.'
+      },
+      {
+        factor: 'Stale approvals fail safely',
+        explanation: 'Re-checking means an old queue entry simply fails its re-validation instead of quietly writing a price that is no longer valid. A stale queue becomes harmless rather than dangerous.'
+      },
+      {
+        factor: 'A TTL is a weaker version of the same idea',
+        explanation: 'Expiring proposals after a fixed window guesses at how fast conditions change. Re-validating measures it directly, and a proposal that is still valid after two hours does not need to be discarded.'
+      },
+      {
+        factor: 'Approval means something specific',
+        explanation: 'The human is confirming an irreversible action. Re-validating makes the approval a statement about current conditions rather than a rubber stamp on a past computation.'
+      }
+    ],
+    tradeoffs: {
+      pros: ['Stale approvals cannot reach the store', 'No arbitrary expiry window to tune', 'Approval reflects current conditions', 'Queue length becomes a non-issue'],
+      cons: ['An approval can be rejected after the human already clicked', 'Requires fetching fresh state on the approval path', 'Slightly more work per approval']
+    },
+    productionConsideration: 'Production would surface the re-validation failure back to the reviewer with the reason, so a rejected approval is explained rather than looking like a bug. Would also record both the proposal-time and approval-time state to make after-the-fact review possible.'
+  },
+  {
+    id: 'hybrid-retrieval-over-dense',
+    title: 'Why hybrid retrieval (dense + BM25) instead of vector search alone?',
+    date: 'Feb 2026',
+    context: 'APEX retrieves research papers to support gap detection and novelty assessment. Pure embedding similarity was returning conceptually adjacent work while missing the papers that actually named the relevant method.',
+    decision: 'Weaviate dense vector search combined with BM25 sparse retrieval',
+    alternatives: ['Dense vector search only', 'BM25 keyword search only', 'Dense retrieval with a cross-encoder reranker only'],
+    reasoning: [
+      {
+        factor: 'Embeddings blur exact terminology',
+        explanation: 'A query about a specific named method returns generic papers in the same area, because the embedding captures topic rather than the exact token. In research retrieval the method name is often the most important part of the query.'
+      },
+      {
+        factor: 'BM25 handles rare tokens',
+        explanation: 'Sparse retrieval scores rare and exact terms highly, which is precisely where dense retrieval is weakest. The two failure modes are complementary rather than overlapping.'
+      },
+      {
+        factor: 'Precision matters downstream',
+        explanation: 'The retrieved set feeds novelty assessment. A false semantic neighbour does not just lower a relevance score, it becomes a wrong prior-art claim in a drafted document.'
+      },
+      {
+        factor: 'Semantic recall still needed',
+        explanation: 'Dropping dense retrieval for BM25 alone would miss papers describing the same idea in different vocabulary, which is a large fraction of genuine cross-domain gaps. Both directions are load-bearing.'
+      }
+    ],
+    tradeoffs: {
+      pros: ['Precision beyond similarity alone', 'Exact method names still retrievable', 'Covers vocabulary mismatch and exact match', 'Native to Weaviate, no extra service'],
+      cons: ['Fusion weighting needs tuning per query type', 'Two retrieval paths to reason about when debugging', 'Slightly higher query latency than dense alone']
+    },
+    productionConsideration: 'Production would add a reranking stage on top of the fused candidate set and evaluate fusion weights against a labelled query set rather than tuning by inspection. Would also track which retrieval path contributed each cited result, so a bad citation can be traced to dense or sparse retrieval.'
   },
   {
     id: 'neo4j-over-relational',
-    title: 'Why Neo4j for knowledge graphs instead of PostgreSQL?',
+    title: 'Why Neo4j with Graph Data Science instead of PostgreSQL?',
     date: 'Jan 2026',
-    context: 'APEX needed to find gaps between research concepts across 780 nodes and 3984 relationships. Foresight needed to detect recurring subscription patterns across transactions.',
+    context: 'APEX needed to find gaps between research concepts across 780 concept nodes and 3,984 relationships, and to rank which concepts were structurally worth reasoning about.',
     decision: 'Neo4j + GDS (Graph Data Science)',
-    alternatives: ['PostgreSQL with recursive CTEs', 'NetworkX in Python', 'MongoDB with manual relationship tracking'],
+    alternatives: ['PostgreSQL with recursive CTEs', 'NetworkX in Python', 'Document store with manual relationship tracking'],
     reasoning: [
       {
-        factor: 'Gap detection query expressiveness',
-        explanation: 'Finding concept pairs that should be connected but are not is a graph traversal problem. In PostgreSQL this requires a multi-level self-join that becomes exponentially slower as the graph grows. In Cypher: MATCH (a:Concept), (b:Concept) WHERE NOT (a)-[:RELATED_TO]->(b) returns it in milliseconds.'
+        factor: 'Gap detection is a traversal problem',
+        explanation: 'Finding concept pairs that should be connected but are not requires multi-level self-joins in SQL that degrade sharply as the graph grows. In Cypher it is a single pattern match with a negation.'
       },
       {
-        factor: 'Graph Data Science plugins',
-        explanation: 'Neo4j GDS provides centrality, community detection, and path-finding algorithms as first-class operations on the same data. Replicating these in Python (NetworkX) requires loading the entire graph into memory.'
+        factor: 'Pagerank for relationship-aware reasoning',
+        explanation: 'GDS pagerank ranks concepts by structural centrality, so the Reasoner prioritises important nodes rather than treating all 780 as equally interesting. Getting that from a relational store means exporting the graph to a separate library and keeping two copies in sync.'
       },
       {
-        factor: 'Subscription pattern detection',
-        explanation: 'In Foresight, detecting recurring charges involves traversing: Transaction -> Merchant -> PreviousTransactions with date-based pattern matching. This is naturally a graph query and awkward in relational schema.'
+        factor: 'Schema evolution',
+        explanation: 'Research knowledge does not settle into a fixed schema. New node types (Hypothesis, Patent, Agent) were added as new labels without migrations, which would each have been a table and a set of foreign keys in a relational design.'
       },
       {
-        factor: 'Schema flexibility',
-        explanation: 'Research knowledge does not fit neatly into a relational schema. APEX added new node types (Hypothesis, Patent, Agent) without schema migrations, just by adding new node labels.'
+        factor: 'Paired with vector search rather than replacing it',
+        explanation: 'Neo4j answers structural questions and Weaviate answers similarity questions. Keeping both means neither is stretched to do the other badly.'
       }
     ],
     tradeoffs: {
-      pros: ['Natural fit for relationship-heavy queries', 'GDS algorithms included', 'Flexible schema', '10x faster on graph traversals vs SQL joins'],
-      cons: ['Steeper learning curve than SQL', 'Less tooling than PostgreSQL', 'Harder to do aggregations and reporting', 'Requires GDS plugin for advanced algorithms']
+      pros: ['Natural gap and traversal queries', 'Graph algorithms on the same data', 'Schema evolves without migrations', 'Clear split of structural vs semantic retrieval'],
+      cons: ['A second database to operate alongside PostgreSQL', 'GDS plugin management overhead when self-hosted', 'Cypher is another query language for contributors to learn']
     },
-    productionConsideration: 'Would use AuraDB (managed Neo4j) in production to avoid GDS plugin maintenance. Would pair with PostgreSQL for relational audit trails and reporting, since the two databases complement rather than replace each other.'
+    productionConsideration: 'Would move from self-hosted Neo4j to a managed deployment to remove GDS plugin management, and materialise pagerank scores on a schedule rather than recomputing them per query, since concept centrality changes slowly relative to how often it is read.'
   },
   {
-    id: 'faiss-over-pinecone',
-    title: 'Why FAISS over Pinecone for Movie Semantic Search?',
+    id: 'golden-images-over-in-place-deploys',
+    title: 'Why golden images with ASG instance refresh instead of deploying to running instances?',
     date: 'Nov 2025',
-    context: 'Movie Semantic Search needed a vector store for 1M+ CLIP embeddings from video frames with sub-10ms search latency.',
-    decision: 'FAISS (HNSW index)',
-    alternatives: ['Pinecone', 'Qdrant', 'Weaviate'],
+    context: 'CloudScale runs a multi-tier AWS environment with a CPU-driven autoscaling group. Deployment needed to keep the running fleet consistent with something reviewable and reproducible.',
+    decision: 'Packer-baked golden images with an autoscaling group instance refresh',
+    alternatives: ['Deploy scripts over SSH to running instances', 'Pull-based config management on boot', 'Containers on ECS or EKS'],
     reasoning: [
       {
-        factor: 'Cost during R&D',
-        explanation: 'FAISS is free. Pinecone charges per query and storage. During development with frequent index rebuilds and test queries, Pinecone costs compound quickly with no proportional benefit.'
+        factor: 'Fleet consistency',
+        explanation: 'Deploying onto running instances means the fleet diverges from any known artifact immediately, and a newly scaled instance boots from an older image than the one serving traffic. Baking the application in makes every instance provably identical.'
       },
       {
-        factor: 'Index control',
-        explanation: 'FAISS exposes IVF, HNSW, and quantization parameters directly. For 1M+ video frame embeddings, HNSW gave sub-10ms search. Pinecone abstracts the index type, making it harder to optimize for specific latency targets.'
+        factor: 'Rollback is a redeploy',
+        explanation: 'Reverting means pointing the launch template at the previous image ID rather than reversing a deployment script, which is the difference between a known-good state and hoping the undo path was tested.'
       },
       {
-        factor: 'Local iteration speed',
-        explanation: 'FAISS runs entirely locally with no API roundtrip. During experimentation with different embedding models and index types, eliminating network latency from the feedback loop matters.'
+        factor: 'What runs is what was tested',
+        explanation: 'The pipeline runs pytest and a Newman/Postman API suite before baking, so the image that reaches the fleet is the artifact the tests passed against.'
+      },
+      {
+        factor: 'Autoscaling correctness',
+        explanation: 'CPU-driven scaling only works if a new instance is immediately equivalent to existing ones. Without a golden image, scaling up under load means adding an instance that still has to configure itself.'
       }
     ],
     tradeoffs: {
-      pros: ['Free', 'Sub-10ms search', 'Full index control', 'No API rate limits'],
-      cons: ['Manual scaling and sharding', 'No managed infrastructure', 'Requires custom backup strategy']
+      pros: ['Immutable, reproducible fleet', 'Rollback by image ID', 'Scaling adds pre-configured instances', 'Tested artifact reaches production'],
+      cons: ['Image bake time on every merge', 'Slower deploys than pushing a code change', 'Image sprawl needs a cleanup policy']
     },
-    productionConsideration: 'For production at scale, would migrate to Qdrant (self-hosted or managed) for better horizontal scaling and built-in filtering support. FAISS is ideal for research but requires significant infrastructure work to scale beyond single-node.'
+    productionConsideration: 'Production would add an image retention and cleanup policy, and use a canary or rolling refresh with health-check gating so a bad image replaces part of the fleet and halts rather than rolling all the way through.'
   },
   {
-    id: 'yolov8-over-faster-rcnn',
-    title: 'Why YOLOv8 over Faster R-CNN for actor recognition?',
+    id: 'customer-managed-kms',
+    title: 'Why customer-managed KMS keys instead of AWS-managed defaults?',
     date: 'Nov 2025',
-    context: 'Movie Semantic Search needed real-time actor recognition across 18 actors at video processing scale.',
-    decision: 'YOLOv8 with 19x augmentation',
-    alternatives: ['Faster R-CNN', 'RetinaNet', 'DETR'],
+    context: 'CloudScale encrypts data across several distinct domains (database, object storage, and application secrets). AWS-managed keys would have satisfied "encryption at rest" with no additional Terraform.',
+    decision: '4 customer-managed KMS keys with 90-day automatic rotation',
+    alternatives: ['AWS-managed default keys', 'A single customer-managed key for everything', 'Application-level encryption'],
     reasoning: [
       {
-        factor: 'Throughput requirement',
-        explanation: 'Processing video at 1fps means needing real-time detection. YOLOv8 achieves 30+ FPS on standard hardware. Faster R-CNN\'s two-stage pipeline is accurate but too slow for this use case.'
+        factor: 'Rotation becomes a stated policy',
+        explanation: 'AWS-managed keys do not let you set the rotation schedule. A 90-day rotation you configure and can point at is a policy; a rotation you do not control is an assumption.'
       },
       {
-        factor: 'Accuracy with augmentation',
-        explanation: 'With 19x data augmentation (flips, rotations, color jitter, mosaic), YOLOv8 reached 96% accuracy across 18 actors, which was sufficient. The augmentation strategy compensated for the single-stage accuracy gap.'
+        factor: 'Per-domain key boundaries',
+        explanation: 'Separate keys per encryption domain mean access to one domain does not imply the ability to decrypt another. One shared key collapses those boundaries into a single blast radius.'
       },
       {
-        factor: 'Production deployment',
-        explanation: 'YOLOv8 exports to ONNX and TensorRT natively. Faster R-CNN requires more effort to optimize for edge or embedded deployment.'
+        factor: 'Reviewable key policies',
+        explanation: 'A customer-managed key has a key policy in Terraform, so who can decrypt what is a diff in a pull request rather than something inferred from IAM at runtime.'
+      },
+      {
+        factor: 'Encryption you can describe',
+        explanation: 'The practical difference is being able to answer which key protects which data, how often it rotates, and who can use it. Defaults give encryption without answers.'
       }
     ],
     tradeoffs: {
-      pros: ['30+ FPS real-time inference', '96% accuracy with augmentation', 'Production-ready export formats', 'Efficient memory usage'],
-      cons: ['Slightly lower raw accuracy than Faster R-CNN', 'Requires careful augmentation strategy to match two-stage accuracy']
+      pros: ['Controlled rotation schedule', 'Per-domain access boundaries', 'Key policies under version control', 'Auditable answers about encryption'],
+      cons: ['More Terraform to maintain', 'Per-key monthly cost', 'Key deletion and recovery need deliberate handling']
     },
-    productionConsideration: 'Would use YOLOv8 for real-time stream processing and Faster R-CNN for offline high-accuracy batch processing on key frames, running both in parallel on different hardware tiers.'
+    productionConsideration: 'Would add CloudTrail monitoring on key usage so unexpected decrypt calls are visible, and document the recovery path for each key. With customer-managed keys, losing key access is a genuine data-loss scenario, which is the cost of holding the control.'
   },
   {
-    id: 'cnn-rnn-hybrid',
-    title: 'Why CNN-RNN hybrid over a Transformer for driver behavior?',
-    date: 'Oct 2025',
-    context: 'Driver Behavior Analysis needed to classify risky driving patterns from 100Hz accelerometer and gyroscope sensor streams.',
-    decision: 'CNN-RNN Hybrid (spatial + temporal)',
-    alternatives: ['Transformer', 'Pure CNN with sliding window', 'Pure LSTM'],
+    id: 'k-anonymity-at-gateway',
+    title: 'Why enforce k-anonymity at the gateway instead of inside each hospital node?',
+    date: 'Mar 2026',
+    context: 'MedFind federates search across 3 independent hospital nodes so patient data never leaves its institution. Aggregate results are not automatically anonymous: a narrow enough query returns a count that describes one person.',
+    decision: 'Gateway-level k-anonymity suppression at k=5, paired with role-based aggregation',
+    alternatives: ['Per-node enforcement', 'Differential privacy noise on counts', 'Rounding small counts instead of suppressing'],
     reasoning: [
       {
-        factor: 'Complementary strengths',
-        explanation: 'CNNs extract spatial patterns from sensor vectors (acceleration direction, gyroscope orientation at a moment in time). RNNs capture how those patterns evolve as sequences. A Transformer could do both but does not add much value at this sequence length.'
+        factor: 'Only the gateway sees the combination',
+        explanation: 'A node can apply a threshold to its own slice, but three nodes each returning a legally-sized group can still combine into something describing a single patient, and no individual node has the information to notice.'
       },
       {
-        factor: 'Data efficiency',
-        explanation: 'Transformers require significantly more data to train well. The available dataset was sufficient for a CNN-RNN hybrid to reach 94% accuracy, but would likely underfit a Transformer without a much larger corpus.'
+        factor: 'The guarantee should not depend on node configuration',
+        explanation: 'With independently operated nodes, per-node enforcement is only as strong as the least carefully configured node. One enforcement point at the merge means the property holds for the network.'
       },
       {
-        factor: 'Interpretability',
-        explanation: 'The spatial features from the CNN layer and the temporal patterns from the RNN layer can be analyzed separately. This made debugging easier and gave clearer explanations of why a specific driving sequence was flagged as risky.'
+        factor: 'Suppression over perturbation',
+        explanation: 'Rounding a count of one still reveals that a matching record exists, and per-query noise can be averaged away by repeating similar queries. Suppression returns an absence of data, so a narrowing attack gets nothing rather than a noisy signal.'
+      },
+      {
+        factor: 'k=5 is a usable threshold',
+        explanation: 'Large enough that a returned aggregate cannot be pinned to one person even with outside knowledge, small enough that genuine research queries still return results. A much higher k suppresses so aggressively the federated search stops answering real questions.'
       }
     ],
     tradeoffs: {
-      pros: ['Data efficient', 'Interpretable spatial and temporal features', '94% accuracy', 'Efficient inference under 200ms'],
-      cons: ['Less flexible than Transformers for novel patterns', 'Requires manual feature engineering at the window level']
+      pros: ['Covers cross-node re-identification', 'One place to audit the guarantee', 'Independent of per-node config', 'Honest primitive: withholds rather than distorts'],
+      cons: ['Gateway becomes a trusted component', 'Legitimate small-cohort research queries return nothing', 'Does not defend against a compromised gateway']
     },
-    productionConsideration: 'With more labeled data, would experiment with a Temporal Fusion Transformer (TFT), which handles multi-horizon time series prediction well. Would also add GPS and road condition features as additional input modalities.'
+    productionConsideration: 'Production would log suppressed queries so a pattern of narrowing attempts by one caller is visible, and pair suppression with query budgets per identity. A single suppressed query is normal; hundreds of increasingly narrow ones from the same caller is a signal worth acting on.'
+  },
+  {
+    id: 'jwt-over-sessions',
+    title: 'Why stateless JWT instead of server-side sessions?',
+    date: 'Sep 2025',
+    context: 'EventEase runs its Express API as multiple containerized replicas on Kubernetes across AWS and Azure, with role-based access control across User, Organizer, and Admin roles.',
+    decision: 'Signed JWT (with bcrypt-hashed credentials) carrying identity and role',
+    alternatives: ['Server-side sessions with a shared store', 'Sticky session routing', 'OAuth via an external identity provider'],
+    reasoning: [
+      {
+        factor: 'No shared state between replicas',
+        explanation: 'A self-contained signed token lets any replica verify a request independently. Server-side sessions would require either a shared session store or sticky routing, both of which add a stateful dependency to an otherwise stateless API.'
+      },
+      {
+        factor: 'Role travels with the request',
+        explanation: 'The role claim is in the token, so authorization middleware evaluates the same value on every route without a lookup. That keeps a single source of truth for permission decisions.'
+      },
+      {
+        factor: 'Portability across clouds',
+        explanation: 'Running the same containers on AWS and Azure meant avoiding anything that assumed a particular managed session or cache service.'
+      },
+      {
+        factor: 'Enforcement stays server-side',
+        explanation: 'The token makes the role available to the API, which is where the boundary is actually enforced. The frontend decides what to show; it never decides what is allowed.'
+      }
+    ],
+    tradeoffs: {
+      pros: ['Stateless horizontal scaling', 'No session store to operate', 'Same behaviour on both clouds', 'Role available on every request'],
+      cons: ['Revocation before expiry needs deliberate handling', 'Token size grows with claims', 'A leaked token is valid until it expires']
+    },
+    productionConsideration: 'Production would use short-lived access tokens with refresh tokens so revocation has a bounded window, and maintain a denylist for compromised tokens. Stateless auth trades instant revocation for scalability, and short expiry is how you buy back most of that.'
   }
 ]

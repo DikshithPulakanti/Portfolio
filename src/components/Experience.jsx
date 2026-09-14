@@ -1,22 +1,9 @@
 import { motion } from 'framer-motion'
 import { FaBriefcase, FaFilePdf, FaExternalLinkAlt } from 'react-icons/fa'
+import { experience } from '../data/experience'
 import './Experience.css'
 
 const Experience = () => {
-  const experience = {
-    company: 'Hewlett Packard Enterprise (HPE)',
-    location: 'Singapore · On-site',
-    position: 'Deep Learning Intern',
-    period: 'Jun 2022 – Jul 2022',
-    achievements: [
-      'Received extensive training in Cloud computing services, primarily Microsoft Azure',
-      'Utilized Microsoft Azure Machine Learning Studio to annotate and label images for production ML model training',
-      'Built and deployed machine learning models in a production environment',
-      'Built and deployed a serverless application on Microsoft Azure Functions using Python to execute ML models on demand',
-      'Conducted data analysis and visualization on Microsoft Azure using Pandas and Matplotlib'
-    ]
-  }
-
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -45,67 +32,80 @@ const Experience = () => {
         className="experience-container"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
+        viewport={{ once: true, amount: 0.1 }}
         variants={containerVariants}
       >
         <h2 className="section-title">Experience</h2>
-        
-        <motion.div className="experience-item" variants={itemVariants}>
-          <div className="experience-icon">
-            <FaBriefcase />
-          </div>
-          <div className="experience-content">
-            <div className="experience-header">
-              <div>
-                <h3 className="experience-position">{experience.position}</h3>
-                <h4 className="experience-company">{experience.company}</h4>
-              </div>
-              <div className="experience-meta">
-                <span className="experience-location">{experience.location}</span>
-                <span className="experience-period">{experience.period}</span>
-              </div>
-            </div>
-            
-            <div className="experience-achievements">
-              <h5>Key Achievements:</h5>
-              <ul className="achievements-list">
-                {experience.achievements.map((achievement, index) => (
-                  <motion.li
-                    key={index}
-                    className="achievement-item"
-                    variants={itemVariants}
-                  >
-                    <span className="achievement-text">{achievement}</span>
-                  </motion.li>
-                ))}
-              </ul>
-              <div className="engineering-signals">
-                <span className="signal-tag">☁️ Microsoft Azure</span>
-                <span className="signal-tag">⚡ Azure Functions</span>
-                <span className="signal-tag">🤖 Azure ML Studio</span>
-                <span className="signal-tag">🐍 Python</span>
-                <span className="signal-tag">📊 Pandas / Matplotlib</span>
-              </div>
 
-              <div className="experience-proof">
-                <div className="proof-badge">
-                  <span className="proof-rating">⭐ Performance Rating: Very Good</span>
-                  <span className="proof-programme">HPE Global Academic Internship Programme (GAIP)</span>
-                </div>
-                <a
-                  href="/assets/hpe-lor.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="lor-btn"
-                >
-                  <FaFilePdf />
-                  View Letter of Recommendation
-                  <FaExternalLinkAlt className="lor-btn-icon" />
-                </a>
+        <div className="experience-list">
+          {experience.map((role) => (
+            <motion.div key={role.id} className="experience-item" variants={itemVariants}>
+              <div className="experience-icon">
+                <FaBriefcase />
               </div>
-            </div>
-          </div>
-        </motion.div>
+              <div className="experience-content">
+                <div className="experience-header">
+                  <div>
+                    <h3 className="experience-position">{role.position}</h3>
+                    <h4 className="experience-company">{role.company}</h4>
+                  </div>
+                  <div className="experience-meta">
+                    {role.location && (
+                      <span className="experience-location">{role.location}</span>
+                    )}
+                    <span className="experience-period">{role.period}</span>
+                  </div>
+                </div>
+
+                {role.summary && <p className="experience-summary">{role.summary}</p>}
+
+                <div className="experience-achievements">
+                  <h5>Key Achievements:</h5>
+                  <ul className="achievements-list">
+                    {role.achievements.map((achievement, index) => (
+                      <motion.li
+                        key={index}
+                        className="achievement-item"
+                        variants={itemVariants}
+                      >
+                        <span className="achievement-text">{achievement}</span>
+                      </motion.li>
+                    ))}
+                  </ul>
+
+                  {role.signals?.length > 0 && (
+                    <div className="engineering-signals">
+                      {role.signals.map((signal, index) => (
+                        <span key={index} className="signal-tag">{signal}</span>
+                      ))}
+                    </div>
+                  )}
+
+                  {role.proof && (
+                    <div className="experience-proof">
+                      <div className="proof-badge">
+                        <span className="proof-rating">{role.proof.rating}</span>
+                        <span className="proof-programme">{role.proof.programme}</span>
+                      </div>
+                      {role.proof.lorHref && (
+                        <a
+                          href={role.proof.lorHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="lor-btn"
+                        >
+                          <FaFilePdf />
+                          View Letter of Recommendation
+                          <FaExternalLinkAlt className="lor-btn-icon" />
+                        </a>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </motion.div>
     </section>
   )

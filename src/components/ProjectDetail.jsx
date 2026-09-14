@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom'
 import { useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { FaArrowLeft, FaCheckCircle } from 'react-icons/fa'
+import { FaArrowLeft, FaCheckCircle, FaGithub, FaExternalLinkAlt } from 'react-icons/fa'
 import { getProjectBySlug } from '../data/projects'
 import ArchitectureExplorer from './ArchitectureExplorer'
 import './ProjectDetail.css'
@@ -46,6 +46,18 @@ const ProjectDetail = () => {
     },
   }
 
+  // Not every project carries every section. Number only the ones present.
+  const hasMetrics = project.metrics?.length > 0
+  const hasTradeoffs = project.tradeoffs?.length > 0
+  const sectionOrder = [
+    'problem',
+    'architecture',
+    'techDecisions',
+    ...(hasMetrics ? ['metrics'] : []),
+    ...(hasTradeoffs ? ['tradeoffs'] : []),
+  ]
+  const sectionNumber = (key) => sectionOrder.indexOf(key) + 1
+
   return (
     <div className="project-detail">
       <div className="project-detail-container">
@@ -65,11 +77,31 @@ const ProjectDetail = () => {
                 <span key={idx} className="tech-tag">{tech}</span>
               ))}
             </div>
+            {project.links?.length > 0 && (
+              <div className="project-links">
+                {project.links.map((link, idx) => (
+                  <a
+                    key={idx}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="project-link"
+                  >
+                    <FaGithub />
+                    {link.label}
+                    <FaExternalLinkAlt className="project-link-icon" />
+                  </a>
+                ))}
+              </div>
+            )}
+            {project.context && (
+              <p className="project-context">{project.context}</p>
+            )}
           </motion.div>
 
           {/* Problem Section */}
           <motion.section className="project-section" variants={itemVariants}>
-            <h2 className="section-heading">1. Problem</h2>
+            <h2 className="section-heading">{sectionNumber('problem')}. Problem</h2>
             <div className="section-content">
               <h3 className="subsection-title">{project.problem.title}</h3>
               <p className="section-text">{project.problem.description}</p>
@@ -89,7 +121,7 @@ const ProjectDetail = () => {
 
           {/* Architecture Section */}
           <motion.section className="project-section" variants={itemVariants}>
-            <h2 className="section-heading">2. Architecture</h2>
+            <h2 className="section-heading">{sectionNumber('architecture')}. Architecture</h2>
             <div className="section-content">
               <p className="section-text">{project.architecture.description}</p>
               <ArchitectureExplorer flow={project.architecture.flow} title={`${project.title} - Architecture`} />
@@ -98,7 +130,7 @@ const ProjectDetail = () => {
 
           {/* Tech Decisions Section */}
           <motion.section className="project-section" variants={itemVariants}>
-            <h2 className="section-heading">3. Tech Decisions</h2>
+            <h2 className="section-heading">{sectionNumber('techDecisions')}. Tech Decisions</h2>
             <div className="section-content">
               <p className="section-text">
                 Every technology choice was made after evaluating alternatives. Here's the reasoning behind key decisions:
@@ -115,8 +147,9 @@ const ProjectDetail = () => {
           </motion.section>
 
           {/* Metrics Section */}
+          {hasMetrics && (
           <motion.section className="project-section" variants={itemVariants}>
-            <h2 className="section-heading">4. Metrics</h2>
+            <h2 className="section-heading">{sectionNumber('metrics')}. Metrics</h2>
             <div className="section-content">
               <p className="section-text">
                 Quantifiable results that demonstrate the impact of this project:
@@ -132,10 +165,12 @@ const ProjectDetail = () => {
               </div>
             </div>
           </motion.section>
+          )}
 
           {/* Tradeoffs Section */}
+          {hasTradeoffs && (
           <motion.section className="project-section" variants={itemVariants}>
-            <h2 className="section-heading">5. Tradeoffs & Production Considerations</h2>
+            <h2 className="section-heading">{sectionNumber('tradeoffs')}. Tradeoffs & Production Considerations</h2>
             <div className="section-content">
               <p className="section-text">
                 Honest reflection on what didn't work, what would be improved with more time, and production considerations:
@@ -160,6 +195,7 @@ const ProjectDetail = () => {
               </div>
             </div>
           </motion.section>
+          )}
         </motion.div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { FaExternalLinkAlt } from 'react-icons/fa'
+import { FaExternalLinkAlt, FaGithub } from 'react-icons/fa'
 import { projects } from '../data/projects'
 import './Projects.css'
 
@@ -69,9 +69,23 @@ const Projects = () => {
                 <span className="signal-badge">🚀 Production Ready</span>
                 <span className="signal-badge">📊 Metrics Driven</span>
               </div>
-              <Link to={`/projects/${project.slug}`} className="project-view-btn">
-                View Details <FaExternalLinkAlt />
-              </Link>
+              <div className="project-card-actions">
+                <Link to={`/projects/${project.slug}`} className="project-view-btn">
+                  View Details <FaExternalLinkAlt />
+                </Link>
+                {project.links?.slice(0, 1).map((link, idx) => (
+                  <a
+                    key={idx}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="project-repo-btn"
+                    aria-label={`${project.title} source on GitHub`}
+                  >
+                    <FaGithub /> Code
+                  </a>
+                ))}
+              </div>
             </motion.div>
           ))}
         </div>

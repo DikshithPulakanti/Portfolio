@@ -64,6 +64,52 @@
   font-family: 'JetBrains Mono', monospace;
 }
 
+.project-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.project-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.1rem;
+  background: transparent;
+  border: 1px solid var(--accent-primary);
+  color: var(--accent-primary);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.project-link:hover {
+  background: var(--accent-primary);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.project-link-icon {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+.project-context {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-left: 3px solid var(--accent-primary);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
 .project-section {
   margin-bottom: 5rem;
 }
